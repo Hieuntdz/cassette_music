@@ -44,7 +44,7 @@ class MyCircleSliderState extends State<MyCircleSlider> {
   }
 
   getVolumeSizes() {
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 700), () {
       final RenderBox renderBoxRed =
           keyVolume.currentContext.findRenderObject();
       final sizeRed = renderBoxRed.size;

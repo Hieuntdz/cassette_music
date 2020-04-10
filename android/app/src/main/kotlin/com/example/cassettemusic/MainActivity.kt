@@ -14,6 +14,7 @@ import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.util.*
 
@@ -39,7 +40,7 @@ class MainActivity : FlutterActivity() {
             if (call.method == "getAudioList") {
                 fileAudioList.clear()
                 getAudioList()
-                if(permisionSuccess){
+                if (permisionSuccess) {
                     result.success(Gson().toJson(fileAudioList))
 //                    result.success(fileAudioList.size)
                 }
@@ -75,8 +76,10 @@ class MainActivity : FlutterActivity() {
                     getPlayList(file.absolutePath)
                 } else if (file.name.endsWith(".mp3")) {
                     val audioModel = AudioModel()
-                    audioModel.name = file.name
-                    audioModel.path = file.path
+                    var name: String = file.name;
+                    name = name.substring(0, name.lastIndexOf(".mp3"))
+                    audioModel.name = name
+                    audioModel.path = file.absolutePath
                     //                    Log.d("BBBBBBBBBBBBBBBBBBBBBB ", file.getName());
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
                         metaRetriver?.setDataSource(file.path)
@@ -86,8 +89,11 @@ class MainActivity : FlutterActivity() {
 //                                .decodeByteArray(art, 0, art.length);
 //                        album_art.setImageBitmap(songImage);
                             audioModel.album = metaRetriver?.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
+                                    ?: ""
                             audioModel.artist = metaRetriver?.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+                                    ?: ""
                             audioModel.genre = metaRetriver?.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
+                                    ?: ""
                         } catch (e: Exception) {
                         }
                     }

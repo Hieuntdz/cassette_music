@@ -4,9 +4,9 @@ import android.nfc.Tag
 
 
 class AudioModel {
-    var path: String? = null
-    var name: String? = null
-    var album: String? = null
-    var artist: String? = null
-    var genre: String? = null
+    var path: String = ""
+    var name: String = ""
+    var album: String = ""
+    var artist: String = ""
+    var genre: String = ""
 }

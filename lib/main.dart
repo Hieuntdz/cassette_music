@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cassettemusic/model/AudioModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -38,7 +39,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
   final String title;
 
   @override
@@ -51,12 +51,19 @@ class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   static const platform = const MethodChannel('CHANNEL_GET_AUDIO_LIST');
 
+  AudioPlayer audioPlayer = AudioPlayer();
+
   List<AudioModel> listAudioModel = new List();
   AnimationController animationController;
   AppState appState = AppState.PAUSING;
   ui.Image image;
+  int currentAudioPos = 0;
+
+  //state
   String icPauseUrl = "assets/images/ic_pause.png";
   String icPlayUrl = "assets/images/ic_play.png";
+  String audioName = "";
+  String audioAlubum = "";
 
   @override
   void initState() {
@@ -101,6 +108,10 @@ class _MyHomePageState extends State<MyHomePage>
     animationController.repeat();
   }
 
+  playAudio(String path) async {
+    await audioPlayer.play(path, isLocal: true);
+  }
+
   imageControlerCallback(ControllerType type) {
     print(type.toString());
     switch (type) {
@@ -108,10 +119,18 @@ class _MyHomePageState extends State<MyHomePage>
         if (appState == AppState.PAUSING) {
           appState = AppState.PLAYING;
           startPlayRotation();
-          setState(() {
-            icPlayUrl = "assets/images/ic_playing.png";
-            icPauseUrl = "assets/images/ic_pause.png";
-          });
+          if (listAudioModel.length > currentAudioPos) {
+            AudioModel audioModel = listAudioModel.elementAt(currentAudioPos);
+            print(TAG + "current Audi path : ${audioModel.path}");
+            setState(() {
+              playAudio(audioModel.path);
+
+              icPlayUrl = "assets/images/ic_playing.png";
+              icPauseUrl = "assets/images/ic_pause.png";
+              audioName = audioModel.name;
+              audioAlubum = audioModel.album;
+            });
+          }
         }
         break;
       case ControllerType.PAUSE:
@@ -238,7 +257,7 @@ class _MyHomePageState extends State<MyHomePage>
                                             margin: EdgeInsets.only(
                                                 left: 10, right: 5),
                                             child: Text(
-                                              "Diem xua- Trinh Cong Sơn ádjabsdjnfvbsndbfd sasdasdasdasdadfggdfgdfg đfg",
+                                              audioName,
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
@@ -260,7 +279,7 @@ class _MyHomePageState extends State<MyHomePage>
                                     alignment: Alignment.bottomRight,
                                     margin: EdgeInsets.only(
                                         top: 7, bottom: 5, right: 20),
-                                    child: Text("Nhac Trinh",
+                                    child: Text(audioAlubum,
                                         style: TextStyle(
                                             fontSize: AppTextSize.textNormal,
                                             color: Colors.black)),
@@ -613,13 +632,14 @@ class SliderBTState extends State<SliderBT> {
             alignment: Alignment.topLeft,
             child: SliderTheme(
               data: SliderTheme.of(context).copyWith(
-                  trackHeight: 5.0,
-                  thumbShape: CustomSliderThumb(
-                      thumbRadius: 5,
-                      thumbHeight: 20,
-                      min: 10,
-                      max: 100,
-                      image: widget.image)),
+                trackHeight: 5.0,
+                thumbShape: CustomSliderThumb(
+                    thumbRadius: 5,
+                    thumbHeight: 20,
+                    min: 10,
+                    max: 100,
+                    image: widget.image),
+              ),
               child: Slider(
                 value: progress,
                 min: 0,
