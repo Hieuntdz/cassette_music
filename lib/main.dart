@@ -173,7 +173,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   onProgressVolumeChage(double volume) {
     print(TAG + "onProgressVolumeChage : $volume");
-//    audioPlayer.setVolume(volume);
+    audioPlayer.setVolume(volume);
   }
 
   Widget getRotateImage() {

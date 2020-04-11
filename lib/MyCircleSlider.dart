@@ -45,39 +45,42 @@ class MyCircleSliderState extends State<MyCircleSlider> {
   bool icCircleBlueVisibly = false;
   double radius = 0; // ban kinh cua vong tron slider
   final void Function(double) onProgressChange;
+
+  Orientation mOrientation;
+
   MyCircleSliderState(this.onProgressChange);
 
   @override
   void initState() {
     super.initState();
     print(TAG + "initState");
-    WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
+    mOrientation = Orientation.portrait;
   }
 
   getVolumeSizes() {
-    Future.delayed(const Duration(milliseconds: 700), () {
-      final RenderBox renderBoxRed =
-          keyVolume.currentContext.findRenderObject();
+    print(TAG + "getVolumeSizes");
+//    Future.delayed(const Duration(milliseconds: 700), () {
+    final RenderBox renderBoxRed = keyVolume.currentContext.findRenderObject();
 
-      sizeWidth = renderBoxRed.size.width;
-      sizeHeight = renderBoxRed.size.height;
+    sizeWidth = renderBoxRed.size.width;
+    sizeHeight = renderBoxRed.size.height;
 
-      defaultLeft = sizeWidth / 2 - iconSize / 2;
+    defaultLeft = sizeWidth / 2 - iconSize / 2;
 
-      minPosLeft = sizeWidth / 2 - (sizeHeight - defalutTop);
-      maxPosLeft = sizeWidth / 2 + (sizeHeight - defalutTop);
-      minPosTop = defalutTop;
-      maxPosTop = sizeHeight;
+    minPosLeft = sizeWidth / 2 - (sizeHeight - defalutTop);
+    maxPosLeft = sizeWidth / 2 + (sizeHeight - defalutTop);
+    minPosTop = defalutTop;
+    maxPosTop = sizeHeight;
+    icCircleBlueVisibly = true;
+
+    radius = sizeHeight - defalutTop - iconSize / 2;
+
+    setState(() {
+      posLeft = sizeWidth / 2 - iconSize / 2;
+      posTop = defalutTop;
       icCircleBlueVisibly = true;
-
-      radius = sizeHeight - defalutTop - iconSize / 2;
-
-      setState(() {
-        posLeft = sizeWidth / 2 - iconSize / 2;
-        posTop = defalutTop;
-        icCircleBlueVisibly = true;
-      });
     });
+//    });
   }
 
   @override
@@ -87,54 +90,62 @@ class MyCircleSliderState extends State<MyCircleSlider> {
 //    if (buildTimes == 2) {
 //      getVolumeSizes();
 //    }
-    return Container(
-        key: keyVolume,
-        width: double.infinity,
-        height: double.infinity,
-        child: new CustomPaint(
-          painter: MyCustomPainter(),
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                left: posLeft,
-                top: posTop,
-                child: GestureDetector(
-                  onHorizontalDragEnd: (DragEndDetails d) {
-                    dragX = 0;
-                    dragY = 0;
-                    setState(() {
-                      posLeft = defaultLeft;
-                      posTop = defalutTop;
-                    });
-                    print("onHorizontalDragEnd");
-                  },
-                  onHorizontalDragDown: (DragDownDetails d) {
-                    print("onHorizontalDragDown");
-                  },
-                  onHorizontalDragCancel: () {
-                    print("onHorizontalDragCancel");
-                  },
-                  onHorizontalDragUpdate: (DragUpdateDetails d) {
-                    print("onHorizontalDragUpdate");
-                    dragX = dragX + d.delta.dx;
-                    dragY = dragY + d.delta.dy;
-                    double progress = ((dragX + radius) / (2 * radius));
-                    onProgressChange(progress);
-                    handleDragVolume(dragX, dragY);
-                  },
-                  child: Container(
-                    width: iconSize,
-                    height: iconSize,
-                    child: Visibility(
-                      visible: icCircleBlueVisibly,
-                      child: Image.asset("assets/images/ic_circle_blue.png"),
+
+    return OrientationBuilder(builder: (context, orientation) {
+      if (orientation == Orientation.landscape &&
+          mOrientation == Orientation.portrait) {
+        mOrientation = orientation;
+        WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
+      }
+      return Container(
+          key: keyVolume,
+          width: double.infinity,
+          height: double.infinity,
+          child: new CustomPaint(
+            painter: MyCustomPainter(),
+            child: Stack(
+              children: <Widget>[
+                Positioned(
+                  left: posLeft,
+                  top: posTop,
+                  child: GestureDetector(
+                    onHorizontalDragEnd: (DragEndDetails d) {
+                      dragX = 0;
+                      dragY = 0;
+                      setState(() {
+                        posLeft = defaultLeft;
+                        posTop = defalutTop;
+                      });
+                      print("onHorizontalDragEnd");
+                    },
+                    onHorizontalDragDown: (DragDownDetails d) {
+                      print("onHorizontalDragDown");
+                    },
+                    onHorizontalDragCancel: () {
+                      print("onHorizontalDragCancel");
+                    },
+                    onHorizontalDragUpdate: (DragUpdateDetails d) {
+                      print("onHorizontalDragUpdate");
+                      dragX = dragX + d.delta.dx;
+                      dragY = dragY + d.delta.dy;
+                      double progress = ((dragX + radius) / (2 * radius));
+                      onProgressChange(progress);
+                      handleDragVolume(dragX, dragY);
+                    },
+                    child: Container(
+                      width: iconSize,
+                      height: iconSize,
+                      child: Visibility(
+                        visible: icCircleBlueVisibly,
+                        child: Image.asset("assets/images/ic_circle_blue.png"),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ));
+              ],
+            ),
+          ));
+    });
   }
 
   void handleDragVolume(double dx, double dy) {
