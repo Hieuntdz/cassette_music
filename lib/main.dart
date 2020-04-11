@@ -62,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage>
   //state
   String icPauseUrl = "assets/images/ic_pause.png";
   String icPlayUrl = "assets/images/ic_play.png";
-  String audioName = "";
+  String audioName = "Casste 1990";
   String audioAlubum = "";
 
   @override
@@ -112,21 +112,33 @@ class _MyHomePageState extends State<MyHomePage>
     await audioPlayer.play(path, isLocal: true);
   }
 
+  updateStatePlay() {
+    setState(() {
+      icPlayUrl = "assets/images/ic_playing.png";
+      icPauseUrl = "assets/images/ic_pause.png";
+    });
+  }
+
+  updateStatePause() {
+    setState(() {
+      icPlayUrl = "assets/images/ic_play.png";
+      icPauseUrl = "assets/images/ic_pauseing.png";
+    });
+  }
+
   imageControlerCallback(ControllerType type) {
     print(type.toString());
     switch (type) {
       case ControllerType.PLAY:
         if (appState == AppState.PAUSING) {
-          appState = AppState.PLAYING;
-          startPlayRotation();
           if (listAudioModel.length > currentAudioPos) {
+            appState = AppState.PLAYING;
+            startPlayRotation();
             AudioModel audioModel = listAudioModel.elementAt(currentAudioPos);
             print(TAG + "current Audi path : ${audioModel.path}");
+            updateStatePlay();
+            playAudio(audioModel.path);
             setState(() {
-              playAudio(audioModel.path);
-
-              icPlayUrl = "assets/images/ic_playing.png";
-              icPauseUrl = "assets/images/ic_pause.png";
               audioName = audioModel.name;
               audioAlubum = audioModel.album;
             });
@@ -135,26 +147,33 @@ class _MyHomePageState extends State<MyHomePage>
         break;
       case ControllerType.PAUSE:
         if (appState == AppState.PLAYING) {
+          audioPlayer.pause();
           appState = AppState.PAUSING;
           stopPlayRotation();
-          setState(() {
-            icPlayUrl = "assets/images/ic_play.png";
-            icPauseUrl = "assets/images/ic_pauseing.png";
-          });
+          updateStatePause();
         }
         break;
       case ControllerType.BACK:
+        handleActionback();
         break;
       case ControllerType.NEXT:
-        // TODO: Handle this case.
+        handleActionNext();
         break;
-      case ControllerType.TMP1:
-        // TODO: Handle this case.
+      case ControllerType.STOP:
+        audioPlayer.setVolume(0.3);
+//        audioPlayer.stop();
+        stopPlayRotation();
         break;
-      case ControllerType.TMP2:
+      case ControllerType.MENU:
+        audioPlayer.setVolume(1.0);
         // TODO: Handle this case.
         break;
     }
+  }
+
+  onProgressVolumeChage(double volume) {
+    print(TAG + "onProgressVolumeChage : $volume");
+//    audioPlayer.setVolume(volume);
   }
 
   Widget getRotateImage() {
@@ -545,14 +564,14 @@ class _MyHomePageState extends State<MyHomePage>
                                   ),
                                   ImageController(
                                       "assets/images/ic_tmp1.png",
-                                      ControllerType.TMP1,
+                                      ControllerType.STOP,
                                       imageControlerCallback),
                                   SizedBox(
                                     width: 2,
                                   ),
                                   ImageController(
                                       "assets/images/ic_tmp2.png",
-                                      ControllerType.TMP2,
+                                      ControllerType.MENU,
                                       imageControlerCallback),
                                 ],
                               ),
@@ -566,7 +585,7 @@ class _MyHomePageState extends State<MyHomePage>
                             alignment: Alignment.center,
                             child: Stack(
                               children: <Widget>[
-                                MyCircleSlider(),
+                                MyCircleSlider(onProgressVolumeChage),
                                 Container(
                                   alignment: Alignment.bottomCenter,
                                   child: Text(
@@ -587,6 +606,50 @@ class _MyHomePageState extends State<MyHomePage>
         ),
       ),
     );
+  }
+
+  void handleActionNext() {
+    if (currentAudioPos == listAudioModel.length - 1) {
+      return;
+    }
+    currentAudioPos++;
+    audioPlayer.pause();
+    stopPlayRotation();
+
+    if (listAudioModel.length > currentAudioPos) {
+      AudioModel audioModel = listAudioModel.elementAt(currentAudioPos);
+      setState(() {
+        audioName = audioModel.name;
+        audioAlubum = audioModel.album;
+      });
+      if (appState == AppState.PLAYING) {
+        playAudio(audioModel.path);
+        updateStatePlay();
+        playAudio(audioModel.path);
+      }
+    }
+  }
+
+  void handleActionback() {
+    if (currentAudioPos == 0) {
+      return;
+    }
+    currentAudioPos--;
+    audioPlayer.pause();
+    stopPlayRotation();
+
+    if (listAudioModel.length > currentAudioPos && currentAudioPos >= 0) {
+      AudioModel audioModel = listAudioModel.elementAt(currentAudioPos);
+      setState(() {
+        audioName = audioModel.name;
+        audioAlubum = audioModel.album;
+      });
+      if (appState == AppState.PLAYING) {
+        playAudio(audioModel.path);
+        updateStatePlay();
+        playAudio(audioModel.path);
+      }
+    }
   }
 }
 

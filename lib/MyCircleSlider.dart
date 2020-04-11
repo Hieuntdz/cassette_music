@@ -8,9 +8,13 @@ import 'HexColor.dart';
 final String TAG = "MyCircleSlider";
 
 class MyCircleSlider extends StatefulWidget {
+  final void Function(double) onProgressChange;
+
+  MyCircleSlider(this.onProgressChange);
+
   @override
   State<StatefulWidget> createState() {
-    return MyCircleSliderState();
+    return MyCircleSliderState(onProgressChange);
   }
 }
 
@@ -19,6 +23,9 @@ final double topCircle2 = 10;
 
 class MyCircleSliderState extends State<MyCircleSlider> {
   GlobalKey keyVolume = new GlobalKey();
+  final int MIN_VOLUME = 10;
+  final int MAX_VOLUME = 100;
+
   double dragX = 0; // gia tri cuoi cung khi keo nut tron phia X
   double dragY = 0; // gia tri cuoi cung khi keo nut tron phia Y
 
@@ -36,6 +43,10 @@ class MyCircleSliderState extends State<MyCircleSlider> {
   double posLeft = 0; // vitri cua icon volume
   double posTop = 0;
   bool icCircleBlueVisibly = false;
+  double radius = 0; // ban kinh cua vong tron slider
+  final void Function(double) onProgressChange;
+  MyCircleSliderState(this.onProgressChange);
+
   @override
   void initState() {
     super.initState();
@@ -47,17 +58,20 @@ class MyCircleSliderState extends State<MyCircleSlider> {
     Future.delayed(const Duration(milliseconds: 700), () {
       final RenderBox renderBoxRed =
           keyVolume.currentContext.findRenderObject();
-      final sizeRed = renderBoxRed.size;
+
       sizeWidth = renderBoxRed.size.width;
-      defaultLeft = sizeWidth / 2 - iconSize / 2;
       sizeHeight = renderBoxRed.size.height;
+
+      defaultLeft = sizeWidth / 2 - iconSize / 2;
 
       minPosLeft = sizeWidth / 2 - (sizeHeight - defalutTop);
       maxPosLeft = sizeWidth / 2 + (sizeHeight - defalutTop);
       minPosTop = defalutTop;
       maxPosTop = sizeHeight;
-      print(TAG + "SIZE of KEY1: $sizeRed");
       icCircleBlueVisibly = true;
+
+      radius = sizeHeight - defalutTop - iconSize / 2;
+
       setState(() {
         posLeft = sizeWidth / 2 - iconSize / 2;
         posTop = defalutTop;
@@ -104,6 +118,8 @@ class MyCircleSliderState extends State<MyCircleSlider> {
                     print("onHorizontalDragUpdate");
                     dragX = dragX + d.delta.dx;
                     dragY = dragY + d.delta.dy;
+                    double progress = ((dragX + radius) / (2 * radius));
+                    onProgressChange(progress);
                     handleDragVolume(dragX, dragY);
                   },
                   child: Container(
@@ -123,7 +139,6 @@ class MyCircleSliderState extends State<MyCircleSlider> {
 
   void handleDragVolume(double dx, double dy) {
     double offsetX = dx.abs();
-    double radius = sizeHeight - defalutTop - iconSize / 2;
     if (offsetX > radius) {
       offsetX = radius;
     }

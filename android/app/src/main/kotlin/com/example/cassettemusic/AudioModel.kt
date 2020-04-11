@@ -1,8 +1,5 @@
 package com.example.cassettemusic
 
-import android.nfc.Tag
-
-
 class AudioModel {
     var path: String = ""
     var name: String = ""

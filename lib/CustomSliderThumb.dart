@@ -58,10 +58,13 @@ class CustomSliderThumb extends SliderComponentShape {
         Offset(center.dx - (tp.width / 2.0), center.dy - (tp.height / 2.0));
 
 //    canvas.drawRRect(rRect, paint);
-    canvas.drawImage(
-        image,
-        new Offset(center.dx - image.width / 2, center.dy - image.height / 2),
-        new Paint());
+    if (image != null) {
+      canvas.drawImage(
+          image,
+          new Offset(center.dx - image.width / 2, center.dy - image.height / 2),
+          new Paint());
+    }
+
 //    tp.paint(canvas, textCenter);
   }
 

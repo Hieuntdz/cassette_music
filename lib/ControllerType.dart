@@ -1,1 +1,1 @@
-enum ControllerType { BACK, PLAY, PAUSE, NEXT, TMP1, TMP2 }
+enum ControllerType { BACK, PLAY, PAUSE, NEXT, STOP, MENU }
