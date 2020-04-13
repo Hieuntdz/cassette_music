@@ -18,6 +18,7 @@ import 'CustomSliderThumb.dart';
 import 'HexColor.dart';
 import 'ImageController.dart';
 import 'MyCircleSlider.dart';
+import 'WidgetIce.dart';
 
 void main() {
   runApp(MyApp());
@@ -47,23 +48,30 @@ class MyHomePage extends StatefulWidget {
 
 final String TAG = "_MyHomePageState";
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   static const platform = const MethodChannel('CHANNEL_GET_AUDIO_LIST');
 
   AudioPlayer audioPlayer = AudioPlayer();
+  StreamSubscription playerCompleteSubscription;
+  StreamSubscription playerErrorSubscription;
+  StreamSubscription playerDurationSubscription;
+  Duration audiDuration;
 
+  AudioModel currentAudio;
   List<AudioModel> listAudioModel = new List();
   AnimationController animationController;
   AppState appState = AppState.PAUSING;
   ui.Image image;
   int currentAudioPos = 0;
+  int totalAudio = 0;
 
   //state
   String icPauseUrl = "assets/images/ic_pause.png";
   String icPlayUrl = "assets/images/ic_play.png";
+  String icNextUrl = "assets/images/ic_next.png";
+  String icBackUrl = "assets/images/ic_back.png";
   String audioName = "Casste 1990";
-  String audioAlubum = "";
+  String audioFolder = "Audio";
 
   @override
   void initState() {
@@ -81,13 +89,27 @@ class _MyHomePageState extends State<MyHomePage>
     try {
       String result = await platform.invokeMethod('getAudioList');
       var arrJson = jsonDecode(result) as List;
-      listAudioModel =
-          arrJson.map((tagJson) => AudioModel.fromJson(tagJson)).toList();
+      listAudioModel = arrJson.map((tagJson) => AudioModel.fromJson(tagJson)).toList();
+      totalAudio = listAudioModel.length;
       print(TAG + "list Audio size : ${listAudioModel.length}");
     } on PlatformException catch (e) {}
   }
 
   Future<Null> init() async {
+    audioPlayer.setVolume(0.7);
+    playerCompleteSubscription = audioPlayer.onPlayerCompletion.listen((event) {
+      _onCompleteAudio();
+    });
+
+    playerErrorSubscription = audioPlayer.onPlayerError.listen((msg) {
+      print('audioPlayer error : $msg');
+    });
+
+    playerDurationSubscription = audioPlayer.onAudioPositionChanged.listen((event) {
+      print("MMMMMMMMMMMMMMMMMMM $event");
+      audiDuration = event;
+    });
+
     final ByteData data = await rootBundle.load('assets/images/ic_thumb.png');
     image = await loadImage(new Uint8List.view(data.buffer));
   }
@@ -126,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage>
     });
   }
 
-  imageControlerCallback(ControllerType type) {
+  void imageControlerCallback(ControllerType type) {
     print(type.toString());
     switch (type) {
       case ControllerType.PLAY:
@@ -134,14 +156,16 @@ class _MyHomePageState extends State<MyHomePage>
           if (listAudioModel.length > currentAudioPos) {
             appState = AppState.PLAYING;
             startPlayRotation();
-            AudioModel audioModel = listAudioModel.elementAt(currentAudioPos);
-            print(TAG + "current Audi path : ${audioModel.path}");
+            currentAudio = listAudioModel.elementAt(currentAudioPos);
+            print(TAG + "current Audi path : ${currentAudio.path}");
             updateStatePlay();
-            playAudio(audioModel.path);
+            playAudio(currentAudio.path);
             setState(() {
-              audioName = audioModel.name;
-              audioAlubum = audioModel.album;
+              audioName = currentAudio.name;
+              audioFolder = currentAudio.folder;
             });
+          } else {
+            currentAudio = null;
           }
         }
         break;
@@ -160,14 +184,59 @@ class _MyHomePageState extends State<MyHomePage>
         handleActionNext();
         break;
       case ControllerType.STOP:
-        audioPlayer.setVolume(0.3);
-//        audioPlayer.stop();
         stopPlayRotation();
+        audioPlayer.pause();
         break;
       case ControllerType.MENU:
         audioPlayer.setVolume(1.0);
         // TODO: Handle this case.
         break;
+    }
+  }
+
+  //Tua bang
+  void longPressEndCallback(ControllerType type, int time) {
+    audioPlayer.
+    if (type == ControllerType.NEXT) {
+      setState(() {
+        icNextUrl = "assets/images/ic_next.png";
+      });
+//      audioPlayer.seek(Duration(milliseconds: time + audiDuration.inMilliseconds));
+      if (currentAudio != null) {
+        if (appState == AppState.PLAYING) {
+          audioPlayer.play(currentAudio.path,
+              isLocal: true, position: Duration(milliseconds: time + audiDuration.inMilliseconds));
+        } else {
+          audioPlayer.seek(Duration(milliseconds: time + audiDuration.inMilliseconds));
+        }
+      }
+    } else if (type == ControllerType.BACK) {
+      setState(() {
+        icBackUrl = "assets/images/ic_back.png";
+      });
+//      audioPlayer.seek(Duration(milliseconds: audiDuration.inMilliseconds - time));
+      if (currentAudio != null) {
+        if (appState == AppState.PLAYING) {
+          audioPlayer.play(currentAudio.path,
+              isLocal: true, position: Duration(milliseconds: audiDuration.inMilliseconds - time));
+        } else {
+          audioPlayer.seek(Duration(milliseconds: audiDuration.inMilliseconds - time));
+        }
+      }
+    }
+  }
+
+  void longPressStartCallback(ControllerType type) {
+    print(TAG + "longPressStartCallback type $type");
+    audioPlayer.pause();
+    if (type == ControllerType.NEXT) {
+      setState(() {
+        icNextUrl = "assets/images/ic_next_press.png";
+      });
+    } else if (type == ControllerType.BACK) {
+      setState(() {
+        icBackUrl = "assets/images/ic_backpress.png";
+      });
     }
   }
 
@@ -179,6 +248,8 @@ class _MyHomePageState extends State<MyHomePage>
   Widget getRotateImage() {
     print("animationController value : ${animationController.value}");
     return Container(
+      margin: EdgeInsets.only(top: 3, bottom: 3),
+      height: double.infinity,
       child: Stack(
         children: <Widget>[
           Image.asset("assets/images/ic_turn_arrow_background.png"),
@@ -200,9 +271,22 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    playerCompleteSubscription.cancel();
+    playerDurationSubscription.cancel();
+    playerErrorSubscription.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
@@ -211,394 +295,350 @@ class _MyHomePageState extends State<MyHomePage>
       body: Container(
         child: Container(
           color: HexColor("#2E2E2E"),
-          child: Column(
+          child: Stack(
             children: <Widget>[
-              Expanded(
-                flex: 10,
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      alignment: Alignment.center,
-                      height: double.infinity,
-                      child: AspectRatio(
-                        aspectRatio: 1000 / 460,
-                        child: Image.asset(
-                          "assets/images/app_background.png",
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      alignment: Alignment.center,
-                      child: AspectRatio(
-                        aspectRatio: 870 / 460,
-                        child: Container(
-                          margin: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).padding.top,
-                              top: MediaQuery.of(context).padding.top),
+              Column(
+                children: <Widget>[
+                  Expanded(
+                    flex: 10,
+                    child: Stack(
+                      children: <Widget>[
+                        Container(
+                          alignment: Alignment.center,
                           height: double.infinity,
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
+                          child: AspectRatio(
+                            aspectRatio: 1000 / 460,
+                            child: Image.asset(
+                              "assets/images/app_background.png",
+                              fit: BoxFit.fill,
                             ),
-                            color: HexColor("#E5DFD6"),
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          child: AspectRatio(
+                            aspectRatio: 870 / 460,
                             child: Container(
-                              child: Column(
-                                children: <Widget>[
-                                  Container(
-                                    alignment: Alignment.topLeft,
-                                    margin: EdgeInsets.only(
-                                        left: 10, top: 5, bottom: 1),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: <Widget>[
-                                        Card(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(5)),
-                                          ),
-                                          color: Colors.black,
-                                          child: Container(
-                                            padding: EdgeInsets.all(5),
-                                            child: Text(
-                                              "A",
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold),
+                              margin: EdgeInsets.only(
+                                  bottom: MediaQuery.of(context).padding.top, top: MediaQuery.of(context).padding.top),
+                              height: double.infinity,
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                                ),
+                                color: HexColor("#E5DFD6"),
+                                child: Container(
+                                  child: Column(
+                                    children: <Widget>[
+                                      Container(
+                                        alignment: Alignment.topLeft,
+                                        margin: EdgeInsets.only(left: 10, top: 5, bottom: 1),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: <Widget>[
+                                            Card(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(Radius.circular(5)),
+                                              ),
+                                              color: Colors.black,
+                                              child: Container(
+                                                padding: EdgeInsets.all(5),
+                                                child: Text(
+                                                  "A",
+                                                  style: TextStyle(
+                                                      color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                        Flexible(
-                                          child: Container(
-                                            margin: EdgeInsets.only(
-                                                left: 10, right: 5),
-                                            child: Text(
-                                              audioName,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  fontSize:
-                                                      AppTextSize.textTitle,
-                                                  color: Colors.black),
+                                            Flexible(
+                                              child: Container(
+                                                margin: EdgeInsets.only(left: 10, right: 5),
+                                                child: Text(
+                                                  audioName,
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      fontSize: AppTextSize.textTitle,
+                                                      color: Colors.black,
+                                                      fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    margin:
-                                        EdgeInsets.only(left: 20, right: 20),
-                                    child: BreakLine("#E8D0A4", 4),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.bottomRight,
-                                    margin: EdgeInsets.only(
-                                        top: 7, bottom: 5, right: 20),
-                                    child: Text(audioAlubum,
-                                        style: TextStyle(
-                                            fontSize: AppTextSize.textNormal,
-                                            color: Colors.black)),
-                                  ),
-                                  Container(
-                                    margin:
-                                        EdgeInsets.only(left: 20, right: 20),
-                                    child: BreakLine("#E8D0A4", 1),
-                                  ),
-                                  Flexible(
-                                    flex: 1,
-                                    child: Container(
-                                      child: Column(
-                                        children: <Widget>[
-                                          Expanded(
-                                            flex: 3,
-                                            child: Container(
-                                              margin: EdgeInsets.only(
-                                                  left: 50, right: 50, top: 10),
-                                              child: AspectRatio(
-                                                aspectRatio: 660 / 194,
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(left: 20, right: 20),
+                                        child: BreakLine("#E8D0A4", 4),
+                                      ),
+                                      Container(
+                                        alignment: Alignment.bottomRight,
+                                        margin: EdgeInsets.only(top: 7, bottom: 5, right: 20),
+                                        child: Text(audioFolder,
+                                            style: TextStyle(fontSize: AppTextSize.textNormal, color: Colors.black)),
+                                      ),
+                                      Container(
+                                        margin: EdgeInsets.only(left: 20, right: 20),
+                                        child: BreakLine("#E8D0A4", 1),
+                                      ),
+                                      Flexible(
+                                        flex: 1,
+                                        child: Container(
+                                          child: Column(
+                                            children: <Widget>[
+                                              Expanded(
+                                                flex: 3,
                                                 child: Container(
-                                                  alignment: Alignment.center,
-                                                  child: Card(
-                                                    color: HexColor("#393939"),
-                                                    shape: RoundedRectangleBorder(
-                                                        side: BorderSide(
-                                                            color:
-                                                                Colors.black12,
-                                                            width: 2.0),
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10))),
-                                                    child: Card(
-                                                      color:
-                                                          HexColor("#393939"),
-                                                      margin:
-                                                          EdgeInsets.all(10),
-                                                      shape:
-                                                          RoundedRectangleBorder(
-                                                              side: BorderSide(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  width: 3.0),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(
-                                                                Radius.circular(
-                                                                    10),
+                                                  margin: EdgeInsets.only(left: 50, right: 50, top: 10),
+                                                  child: AspectRatio(
+                                                    aspectRatio: 660 / 194,
+                                                    child: Container(
+                                                      alignment: Alignment.center,
+                                                      child: Card(
+                                                        color: HexColor("#393939"),
+                                                        shape: RoundedRectangleBorder(
+                                                          side: BorderSide(color: Colors.black12, width: 2.0),
+                                                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                        ),
+                                                        child: Card(
+                                                          color: HexColor("#393939"),
+                                                          margin: EdgeInsets.all(10),
+                                                          shape: RoundedRectangleBorder(
+                                                              side: BorderSide(color: Colors.black, width: 3.0),
+                                                              borderRadius: BorderRadius.all(
+                                                                Radius.circular(10),
                                                               )),
-                                                      child: Container(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                left: 15,
-                                                                right: 15,
-                                                                top: 10,
-                                                                bottom: 10),
-                                                        child: Row(
-                                                          children: <Widget>[
-                                                            Expanded(
-                                                              flex: 1,
-                                                              child:
-                                                                  getRotateImage(),
+                                                          child: Container(
+                                                            padding:
+                                                                EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                                                            child: Row(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children: <Widget>[
+                                                                Expanded(
+                                                                    flex: 2,
+                                                                    child: Container(
+                                                                      margin: EdgeInsets.only(left: 5),
+                                                                      alignment: Alignment.centerLeft,
+                                                                      child: getRotateImage(),
+                                                                    )),
+                                                                Expanded(
+                                                                  //BANG
+                                                                  flex: 3,
+                                                                  child: Container(
+                                                                    margin: EdgeInsets.only(top: 4, bottom: 4),
+                                                                    child: WidgetIce(currentAudioPos, totalAudio),
+                                                                  ),
+                                                                ),
+                                                                Expanded(
+                                                                  flex: 2,
+                                                                  child: Container(
+                                                                    margin: EdgeInsets.only(right: 5),
+                                                                    alignment: Alignment.centerRight,
+                                                                    child: getRotateImage(),
+                                                                  ),
+                                                                )
+                                                              ],
                                                             ),
-                                                            Expanded(
-                                                              flex: 3,
-                                                              child:
-                                                                  Container(),
-                                                            ),
-                                                            Expanded(
-                                                              flex: 1,
-                                                              child:
-                                                                  getRotateImage(),
-                                                            )
-                                                          ],
+                                                          ),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
                                                 ),
                                               ),
-                                            ),
+                                              Expanded(
+                                                flex: 1,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black,
+                                                    borderRadius: BorderRadius.circular(10.0),
+                                                  ),
+                                                  margin: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 7),
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Expanded(
+                                                        flex: 1,
+                                                        child: Container(
+                                                          alignment: Alignment.centerLeft,
+                                                          margin: EdgeInsets.only(left: 30),
+                                                          child: Text(
+                                                            "Maxell",
+                                                            style: TextStyle(
+                                                                color: Colors.red,
+                                                                fontSize: AppTextSize.textHeader,
+                                                                fontWeight: FontWeight.bold),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 1,
+                                                        child: Container(
+                                                          alignment: Alignment.center,
+                                                          child: Text(
+                                                            "POSITION-NORMAL",
+                                                            style: TextStyle(
+                                                                color: Colors.white, fontSize: AppTextSize.textNormal),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        flex: 1,
+                                                        child: Container(
+                                                          alignment: Alignment.centerRight,
+                                                          margin: EdgeInsets.only(right: 30),
+                                                          child: Text(
+                                                            "90",
+                                                            style: TextStyle(
+                                                                color: Colors.red,
+                                                                fontSize: AppTextSize.textHeader,
+                                                                fontWeight: FontWeight.bold),
+                                                          ),
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            ],
                                           ),
-                                          Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.black,
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                              ),
-                                              margin: EdgeInsets.only(
-                                                  left: 15,
-                                                  right: 15,
-                                                  top: 5,
-                                                  bottom: 7),
-                                              child: Row(
-                                                children: <Widget>[
-                                                  Expanded(
-                                                    flex: 1,
-                                                    child: Container(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      margin: EdgeInsets.only(
-                                                          left: 20),
-                                                      child: Text(
-                                                        "Maxell",
-                                                        style: TextStyle(
-                                                            color: Colors.red,
-                                                            fontSize:
-                                                                AppTextSize
-                                                                    .textHeader,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 1,
-                                                    child: Container(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      child: Text(
-                                                        "POSITION-NORMAL",
-                                                        style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: AppTextSize
-                                                                .textNormal),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    flex: 1,
-                                                    child: Container(
-                                                      alignment:
-                                                          Alignment.centerRight,
-                                                      margin: EdgeInsets.only(
-                                                          right: 20),
-                                                      child: Text(
-                                                        "90",
-                                                        style: TextStyle(
-                                                            color: Colors.red,
-                                                            fontSize:
-                                                                AppTextSize
-                                                                    .textHeader,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          )
-                                        ],
-                                      ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.only(left: 20),
+                      color: HexColor("#272727"),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            flex: 3,
+                            child: Container(
+                              margin: EdgeInsets.only(top: 3),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  Flexible(
+                                    child: SliderBT(
+                                      text: "T",
+                                      progress: 100,
+                                      image: image,
                                     ),
-                                  )
+                                  ),
+                                  Flexible(
+                                    child: SliderBT(
+                                      text: "B",
+                                      progress: 50,
+                                      image: image,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.only(left: 20),
-                  color: HexColor("#272727"),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        flex: 3,
-                        child: Container(
-                          margin: EdgeInsets.only(top: 3),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              Flexible(
-                                child: SliderBT(
-                                  text: "T",
-                                  progress: 100,
-                                  image: image,
-                                ),
-                              ),
-                              Flexible(
-                                child: SliderBT(
-                                  text: "B",
-                                  progress: 50,
-                                  image: image,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 8,
-                        child: Container(
-                          height: double.infinity,
-                          margin: EdgeInsets.only(top: 5),
-                          child: Container(
+                          Expanded(
+                            flex: 8,
+                            child: Container(
+                              height: double.infinity,
+                              margin: EdgeInsets.only(top: 5),
+                              child: Container(
 //                            color: Colors.black,
 //                            shape: RoundedRectangleBorder(
 //                              borderRadius: BorderRadius.only(
 //                                  topLeft: Radius.circular(5),
 //                                  topRight: Radius.circular(5)),
 //                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(10),
-                                topLeft: Radius.circular(10),
-                              ),
-                              border: Border.all(color: Colors.black),
-                            ),
-                            alignment: Alignment.center,
-                            child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(10),
+                                    topLeft: Radius.circular(10),
+                                  ),
+                                  border: Border.all(color: Colors.black),
+                                ),
+                                alignment: Alignment.center,
+                                child: Container(
 //                              width: double.minPositive,
-                              padding: EdgeInsets.all(3),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  ImageController(
-                                      "assets/images/ic_back.png",
-                                      ControllerType.BACK,
-                                      imageControlerCallback),
-                                  SizedBox(
-                                    width: 2,
+                                  padding: EdgeInsets.all(3),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      ImageController(icBackUrl, ControllerType.BACK, imageControlerCallback,
+                                          longPressEndCallback, longPressStartCallback),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      ImageController(icPlayUrl, ControllerType.PLAY, imageControlerCallback,
+                                          longPressEndCallback, longPressStartCallback),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      ImageController(icNextUrl, ControllerType.NEXT, imageControlerCallback,
+                                          longPressEndCallback, longPressStartCallback),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      ImageController(icPauseUrl, ControllerType.PAUSE, imageControlerCallback,
+                                          longPressEndCallback, longPressStartCallback),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      ImageController("assets/images/ic_tmp1.png", ControllerType.STOP,
+                                          imageControlerCallback, longPressEndCallback, longPressStartCallback),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      ImageController("assets/images/ic_tmp2.png", ControllerType.MENU,
+                                          imageControlerCallback, longPressEndCallback, longPressStartCallback),
+                                    ],
                                   ),
-                                  ImageController(
-                                      icPlayUrl,
-                                      ControllerType.PLAY,
-                                      imageControlerCallback),
-                                  SizedBox(
-                                    width: 2,
-                                  ),
-                                  ImageController(
-                                      "assets/images/ic_next.png",
-                                      ControllerType.NEXT,
-                                      imageControlerCallback),
-                                  SizedBox(
-                                    width: 2,
-                                  ),
-                                  ImageController(
-                                      icPauseUrl,
-                                      ControllerType.PAUSE,
-                                      imageControlerCallback),
-                                  SizedBox(
-                                    width: 2,
-                                  ),
-                                  ImageController(
-                                      "assets/images/ic_tmp1.png",
-                                      ControllerType.STOP,
-                                      imageControlerCallback),
-                                  SizedBox(
-                                    width: 2,
-                                  ),
-                                  ImageController(
-                                      "assets/images/ic_tmp2.png",
-                                      ControllerType.MENU,
-                                      imageControlerCallback),
-                                ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      Expanded(
-                          flex: 3,
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Stack(
-                              children: <Widget>[
-                                MyCircleSlider(onProgressVolumeChage),
-                                Container(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Text(
-                                    "Volume",
-                                    style: TextStyle(
-                                        color: Colors.grey, fontSize: 13),
-                                  ),
+                          Expanded(
+                              flex: 3,
+                              child: Container(
+                                alignment: Alignment.center,
+                                child: Stack(
+                                  children: <Widget>[
+                                    MyCircleSlider(onProgressVolumeChage),
+                                    Container(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Text(
+                                        "Volume",
+                                        style: TextStyle(color: Colors.grey, fontSize: 13),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          ))
-                    ],
-                  ),
+                              ))
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              Container(
+                width: double.infinity,
+                height: 40,
+                child: Image.asset(
+                  "assets/images/bg_mo.png",
+                  fit: BoxFit.fill,
                 ),
               )
             ],
@@ -609,18 +649,19 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void handleActionNext() {
-    if (currentAudioPos == listAudioModel.length - 1) {
-      return;
-    }
     currentAudioPos++;
+    if (currentAudioPos >= listAudioModel.length) {
+      currentAudioPos = 0;
+    }
     audioPlayer.pause();
     stopPlayRotation();
 
     if (listAudioModel.length > currentAudioPos) {
       AudioModel audioModel = listAudioModel.elementAt(currentAudioPos);
+      currentAudio = audioModel;
       setState(() {
         audioName = audioModel.name;
-        audioAlubum = audioModel.album;
+        audioFolder = audioModel.folder;
       });
       if (appState == AppState.PLAYING) {
         playAudio(audioModel.path);
@@ -631,18 +672,19 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   void handleActionback() {
-    if (currentAudioPos == 0) {
-      return;
-    }
     currentAudioPos--;
+    if (currentAudioPos < 0) {
+      currentAudioPos = listAudioModel.length - 1;
+    }
     audioPlayer.pause();
     stopPlayRotation();
 
     if (listAudioModel.length > currentAudioPos && currentAudioPos >= 0) {
       AudioModel audioModel = listAudioModel.elementAt(currentAudioPos);
+      currentAudio = audioModel;
       setState(() {
         audioName = audioModel.name;
-        audioAlubum = audioModel.album;
+        audioFolder = audioModel.folder;
       });
       if (appState == AppState.PLAYING) {
         playAudio(audioModel.path);
@@ -650,6 +692,10 @@ class _MyHomePageState extends State<MyHomePage>
         playAudio(audioModel.path);
       }
     }
+  }
+
+  void _onCompleteAudio() {
+    handleActionNext();
   }
 }
 
@@ -685,8 +731,7 @@ class SliderBTState extends State<SliderBT> {
         children: <Widget>[
           Text(
             "$text",
-            style: TextStyle(
-                fontSize: AppTextSize.textNormal, color: Colors.white),
+            style: TextStyle(fontSize: AppTextSize.textNormal, color: Colors.white),
           ),
           Flexible(
               child: Container(
@@ -696,12 +741,7 @@ class SliderBTState extends State<SliderBT> {
             child: SliderTheme(
               data: SliderTheme.of(context).copyWith(
                 trackHeight: 5.0,
-                thumbShape: CustomSliderThumb(
-                    thumbRadius: 5,
-                    thumbHeight: 20,
-                    min: 10,
-                    max: 100,
-                    image: widget.image),
+                thumbShape: CustomSliderThumb(thumbRadius: 5, thumbHeight: 20, min: 10, max: 100, image: widget.image),
               ),
               child: Slider(
                 value: progress,

@@ -95,6 +95,7 @@ class MainActivity : FlutterActivity() {
                                     ?: ""
                             audioModel.genre = metaRetriver?.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
                                     ?: ""
+                            audioModel.folder = file.parentFile.name
                         } catch (e: Exception) {
                         }
                     }
