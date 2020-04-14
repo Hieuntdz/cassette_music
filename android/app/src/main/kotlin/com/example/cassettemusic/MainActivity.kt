@@ -14,9 +14,9 @@ import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.util.*
+
 
 class MainActivity : FlutterActivity() {
     val TAG = "MainActivity TAG";
@@ -24,14 +24,10 @@ class MainActivity : FlutterActivity() {
     val RUNTIME_PERMISSION_CODE = 7
     var fileAudioList = ArrayList<AudioModel>()
     val rootPath = Environment.getExternalStorageDirectory().absolutePath
-    private var metaRetriver: MediaMetadataRetriever? = null
     var audioListResult: MethodChannel.Result? = null
     var permisionSuccess = false
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
-            metaRetriver = MediaMetadataRetriever()
-        }
     }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
@@ -82,25 +78,19 @@ class MainActivity : FlutterActivity() {
                     audioModel.name = name
                     audioModel.path = file.absolutePath
                     //                    Log.d("BBBBBBBBBBBBBBBBBBBBBB ", file.getName());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD_MR1) {
-                        metaRetriver?.setDataSource(file.path)
-                        try {
-                            var art = metaRetriver?.embeddedPicture
-                            //                        Bitmap songImage = BitmapFactory
-//                                .decodeByteArray(art, 0, art.length);
-//                        album_art.setImageBitmap(songImage);
-                            audioModel.album = metaRetriver?.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-                                    ?: ""
-                            audioModel.artist = metaRetriver?.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-                                    ?: ""
-                            audioModel.genre = metaRetriver?.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
-                                    ?: ""
-                            audioModel.folder = file.parentFile.name
-                        } catch (e: Exception) {
-                        }
-                    }
+                    var metaRetriver  = MediaMetadataRetriever()
+                    metaRetriver?.setDataSource(file.path)
+
+                    audioModel.album = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
+                            ?: ""
+                    audioModel.artist = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+                            ?: ""
+                    audioModel.genre = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
+                            ?: ""
+                    audioModel.folder = file.parentFile.name
 
                     Log.d("BBBBBBBBBBBBBBBBBBBBBB", "Artist : " + audioModel.artist)
+                    Log.d("BBBBBBBBBBBBBBBBBBBBBB", "album : " + audioModel.album)
                     fileAudioList.add(audioModel)
                 }
             }

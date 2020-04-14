@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cassettemusic/MenuScreen.dart';
 import 'package:cassettemusic/model/AudioModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,6 +60,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   AudioModel currentAudio;
   List<AudioModel> listAudioModel = new List();
+  List<AudioModel> listAudioModelContent = new List();
+  List<AudioModel> listAudioArtistModel = new List();
+  List<AudioModel> listAudioFolderModel = new List();
   AnimationController animationController;
   AppState appState = AppState.PAUSING;
   ui.Image image;
@@ -90,8 +94,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       String result = await platform.invokeMethod('getAudioList');
       var arrJson = jsonDecode(result) as List;
       listAudioModel = arrJson.map((tagJson) => AudioModel.fromJson(tagJson)).toList();
-      totalAudio = listAudioModel.length;
-      print(TAG + "list Audio size : ${listAudioModel.length}");
+      listAudioModelContent.addAll(listAudioModel);
+      totalAudio = listAudioModelContent.length;
     } on PlatformException catch (e) {}
   }
 
@@ -155,10 +159,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     switch (type) {
       case ControllerType.PLAY:
         if (appState == AppState.PAUSING) {
-          if (listAudioModel.length > currentAudioPos) {
+          if (listAudioModelContent.length > currentAudioPos) {
             appState = AppState.PLAYING;
             startPlayRotation();
-            currentAudio = listAudioModel.elementAt(currentAudioPos);
+            currentAudio = listAudioModelContent.elementAt(currentAudioPos);
             print(TAG + "current Audi path : ${currentAudio.path}");
             updateStatePlay();
             playAudio(currentAudio.path);
@@ -172,12 +176,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         }
         break;
       case ControllerType.PAUSE:
-        if (appState == AppState.PLAYING) {
-          audioPlayer.pause();
-          appState = AppState.PAUSING;
-          stopPlayRotation();
-          updateStatePause();
-        }
+        onButtonPauseClick();
         break;
       case ControllerType.BACK:
         handleActionback();
@@ -195,8 +194,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         });
         break;
       case ControllerType.MENU:
-        audioPlayer.setVolume(1.0);
-        // TODO: Handle this case.
+//        onButtonPauseClick();
+        navigateToMenuScreen(context);
         break;
     }
   }
@@ -284,6 +283,58 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     );
   }
 
+  Future navigateToMenuScreen(context) async {
+    Map result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MenuScreen(
+                  listAudioModel: listAudioModel,
+                )));
+
+    if (result == null) {
+      return;
+    }
+
+    String type = result[MenuScreen.KEY_TYPE];
+    int pos = result[MenuScreen.KEY_POS];
+    String value = result[MenuScreen.KEY_VALUE];
+    if (type.isNotEmpty && type == MenuScreen.DANH_SACH) {
+      listAudioModelContent.clear();
+      listAudioModelContent.addAll(listAudioModel);
+      currentAudioPos = pos;
+    } else if (type.isNotEmpty && type == MenuScreen.ARTIST) {
+      listAudioModelContent.clear();
+      currentAudioPos = 0;
+      for (AudioModel audioModel in listAudioModel) {
+        if (audioModel.artist == value) {
+          listAudioModelContent.add(audioModel);
+        }
+      }
+    } else if (type.isNotEmpty && type == MenuScreen.FOLDER) {
+      listAudioModelContent.clear();
+      currentAudioPos = 0;
+      for (AudioModel audioModel in listAudioModel) {
+        if (audioModel.folder == value) {
+          listAudioModelContent.add(audioModel);
+        }
+      }
+    }
+    if (listAudioModelContent.length > currentAudioPos) {
+      currentAudio = listAudioModelContent[currentAudioPos];
+      audioName = currentAudio.name;
+      audioFolder = currentAudio.folder;
+    }
+    appState = AppState.PAUSING;
+    audioPlayer.stop();
+    stopPlayRotation();
+    setState(() {
+      icPlayUrl = "assets/images/ic_play.png";
+      icPauseUrl = "assets/images/ic_pause.png";
+      audioName = audioName;
+      audioFolder = audioFolder;
+    });
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -314,14 +365,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
               Column(
                 children: <Widget>[
                   Expanded(
-                    flex: 10,
+                    flex: 11,
                     child: Stack(
                       children: <Widget>[
                         Container(
                           alignment: Alignment.center,
                           height: double.infinity,
                           child: AspectRatio(
-                            aspectRatio: 1000 / 460,
+                            aspectRatio: 1173 / 597,
                             child: Image.asset(
                               "assets/images/app_background.png",
                               fit: BoxFit.fill,
@@ -329,130 +380,140 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                           ),
                         ),
                         Container(
+                          width: double.infinity,
+                          height: double.infinity,
                           alignment: Alignment.center,
+                          margin: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).padding.top, top: MediaQuery.of(context).padding.top),
                           child: AspectRatio(
-                            aspectRatio: 870 / 460,
-                            child: Container(
-                              margin: EdgeInsets.only(
-                                  bottom: MediaQuery.of(context).padding.top, top: MediaQuery.of(context).padding.top),
-                              height: double.infinity,
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                                ),
-                                color: HexColor("#E5DFD6"),
-                                child: Container(
-                                  child: Column(
-                                    children: <Widget>[
-                                      Container(
-                                        alignment: Alignment.topLeft,
-                                        margin: EdgeInsets.only(left: 10, top: 5, bottom: 1),
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                          children: <Widget>[
-                                            Card(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(Radius.circular(5)),
-                                              ),
-                                              color: Colors.black,
-                                              child: Container(
-                                                padding: EdgeInsets.all(5),
-                                                child: Text(
-                                                  "A",
-                                                  style: TextStyle(
-                                                      color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                                                ),
-                                              ),
-                                            ),
-                                            Flexible(
-                                              child: Container(
-                                                margin: EdgeInsets.only(left: 10, right: 5),
-                                                child: Text(
-                                                  audioName,
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                      fontSize: AppTextSize.textTitle,
-                                                      color: Colors.black,
-                                                      fontWeight: FontWeight.bold),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(left: 20, right: 20),
-                                        child: BreakLine("#E8D0A4", 4),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.bottomRight,
-                                        margin: EdgeInsets.only(top: 7, bottom: 5, right: 20),
-                                        child: Text(audioFolder,
-                                            style: TextStyle(fontSize: AppTextSize.textNormal, color: Colors.black)),
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(left: 20, right: 20),
-                                        child: BreakLine("#E8D0A4", 1),
-                                      ),
-                                      Flexible(
-                                        flex: 1,
-                                        child: Container(
-                                          child: Column(
+                            aspectRatio: 900 / 485,
+                            child: Card(
+                              color: HexColor("#2E2E2E"),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                              ),
+                              child: Container(
+                                height: double.infinity,
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.all(3),
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                                  ),
+                                  color: HexColor("#E5DFD6"),
+                                  child: Container(
+                                    child: Column(
+                                      children: <Widget>[
+                                        Container(
+                                          alignment: Alignment.topLeft,
+                                          margin: EdgeInsets.only(left: 10, top: 5, bottom: 1),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
                                             children: <Widget>[
-                                              Expanded(
-                                                flex: 3,
+                                              Card(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.all(Radius.circular(5)),
+                                                ),
+                                                color: Colors.black,
                                                 child: Container(
-                                                  margin: EdgeInsets.only(left: 50, right: 50, top: 10),
-                                                  child: AspectRatio(
-                                                    aspectRatio: 660 / 194,
-                                                    child: Container(
-                                                      alignment: Alignment.center,
-                                                      child: Card(
-                                                        color: HexColor("#393939"),
-                                                        shape: RoundedRectangleBorder(
-                                                          side: BorderSide(color: Colors.black12, width: 2.0),
-                                                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                        ),
+                                                  padding: EdgeInsets.all(5),
+                                                  child: Text(
+                                                    "A",
+                                                    style: TextStyle(
+                                                        color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                              Flexible(
+                                                child: Container(
+                                                  margin: EdgeInsets.only(left: 10, right: 5),
+                                                  child: Text(
+                                                    audioName,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                        fontSize: AppTextSize.textTitle,
+                                                        color: Colors.black,
+                                                        fontWeight: FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(left: 20, right: 20),
+                                          child: BreakLine("#E8D0A4", 4),
+                                        ),
+                                        Container(
+                                          alignment: Alignment.bottomRight,
+                                          margin: EdgeInsets.only(top: 7, bottom: 5, right: 20),
+                                          child: Text(audioFolder,
+                                              style: TextStyle(fontSize: AppTextSize.textNormal, color: Colors.black)),
+                                        ),
+                                        Container(
+                                          margin: EdgeInsets.only(left: 20, right: 20),
+                                          child: BreakLine("#E8D0A4", 1),
+                                        ),
+                                        Flexible(
+                                          flex: 1,
+                                          child: Container(
+                                            child: Column(
+                                              children: <Widget>[
+                                                Expanded(
+                                                  flex: 3,
+                                                  child: Container(
+                                                    margin: EdgeInsets.only(left: 50, right: 50, top: 10),
+                                                    child: AspectRatio(
+                                                      aspectRatio: 660 / 194,
+                                                      child: Container(
+                                                        alignment: Alignment.center,
                                                         child: Card(
                                                           color: HexColor("#393939"),
-                                                          margin: EdgeInsets.all(10),
                                                           shape: RoundedRectangleBorder(
-                                                              side: BorderSide(color: Colors.black, width: 3.0),
-                                                              borderRadius: BorderRadius.all(
-                                                                Radius.circular(10),
-                                                              )),
-                                                          child: Container(
-                                                            padding:
-                                                                EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
-                                                            child: Row(
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              mainAxisAlignment: MainAxisAlignment.start,
-                                                              children: <Widget>[
-                                                                Expanded(
+                                                            side: BorderSide(color: Colors.black12, width: 2.0),
+                                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                          ),
+                                                          child: Card(
+                                                            color: HexColor("#393939"),
+                                                            margin: EdgeInsets.all(10),
+                                                            shape: RoundedRectangleBorder(
+                                                                side: BorderSide(color: Colors.black, width: 3.0),
+                                                                borderRadius: BorderRadius.all(
+                                                                  Radius.circular(10),
+                                                                )),
+                                                            child: Container(
+                                                              padding: EdgeInsets.only(
+                                                                  left: 10, right: 10, top: 5, bottom: 5),
+                                                              child: Row(
+                                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                                children: <Widget>[
+                                                                  Expanded(
+                                                                      flex: 2,
+                                                                      child: Container(
+                                                                        margin: EdgeInsets.only(left: 5),
+                                                                        alignment: Alignment.centerLeft,
+                                                                        child: getRotateImage(),
+                                                                      )),
+                                                                  Expanded(
+                                                                    //BANG
+                                                                    flex: 3,
+                                                                    child: Container(
+                                                                      margin: EdgeInsets.only(top: 4, bottom: 4),
+                                                                      child: WidgetIce(currentAudioPos, totalAudio),
+                                                                    ),
+                                                                  ),
+                                                                  Expanded(
                                                                     flex: 2,
                                                                     child: Container(
-                                                                      margin: EdgeInsets.only(left: 5),
-                                                                      alignment: Alignment.centerLeft,
+                                                                      margin: EdgeInsets.only(right: 5),
+                                                                      alignment: Alignment.centerRight,
                                                                       child: getRotateImage(),
-                                                                    )),
-                                                                Expanded(
-                                                                  //BANG
-                                                                  flex: 3,
-                                                                  child: Container(
-                                                                    margin: EdgeInsets.only(top: 4, bottom: 4),
-                                                                    child: WidgetIce(currentAudioPos, totalAudio),
-                                                                  ),
-                                                                ),
-                                                                Expanded(
-                                                                  flex: 2,
-                                                                  child: Container(
-                                                                    margin: EdgeInsets.only(right: 5),
-                                                                    alignment: Alignment.centerRight,
-                                                                    child: getRotateImage(),
-                                                                  ),
-                                                                )
-                                                              ],
+                                                                    ),
+                                                                  )
+                                                                ],
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
@@ -460,71 +521,72 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                              Expanded(
-                                                flex: 1,
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.black,
-                                                    borderRadius: BorderRadius.circular(7.0),
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black,
+                                                      borderRadius: BorderRadius.circular(5.0),
+                                                    ),
+                                                    margin: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 7),
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Expanded(
+                                                          flex: 1,
+                                                          child: Container(
+                                                            alignment: Alignment.centerLeft,
+                                                            margin: EdgeInsets.only(left: 30),
+                                                            child: Text(
+                                                              "Maxell",
+                                                              style: TextStyle(
+                                                                  color: Colors.red,
+                                                                  fontSize: AppTextSize.textHeader,
+                                                                  fontWeight: FontWeight.bold),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 1,
+                                                          child: Container(
+                                                            alignment: Alignment.center,
+                                                            child: Text(
+                                                              "POSITION-NORMAL",
+                                                              style: TextStyle(
+                                                                  color: Colors.white,
+                                                                  fontSize: AppTextSize.textNormal),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 1,
+                                                          child: Container(
+                                                            alignment: Alignment.centerRight,
+                                                            margin: EdgeInsets.only(right: 30),
+                                                            child: Text(
+                                                              "90",
+                                                              style: TextStyle(
+                                                                  color: Colors.red,
+                                                                  fontSize: AppTextSize.textHeader,
+                                                                  fontWeight: FontWeight.bold),
+                                                            ),
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
                                                   ),
-                                                  margin: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 7),
-                                                  child: Row(
-                                                    children: <Widget>[
-                                                      Expanded(
-                                                        flex: 1,
-                                                        child: Container(
-                                                          alignment: Alignment.centerLeft,
-                                                          margin: EdgeInsets.only(left: 30),
-                                                          child: Text(
-                                                            "Maxell",
-                                                            style: TextStyle(
-                                                                color: Colors.red,
-                                                                fontSize: AppTextSize.textHeader,
-                                                                fontWeight: FontWeight.bold),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 1,
-                                                        child: Container(
-                                                          alignment: Alignment.center,
-                                                          child: Text(
-                                                            "POSITION-NORMAL",
-                                                            style: TextStyle(
-                                                                color: Colors.white, fontSize: AppTextSize.textNormal),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 1,
-                                                        child: Container(
-                                                          alignment: Alignment.centerRight,
-                                                          margin: EdgeInsets.only(right: 30),
-                                                          child: Text(
-                                                            "90",
-                                                            style: TextStyle(
-                                                                color: Colors.red,
-                                                                fontSize: AppTextSize.textHeader,
-                                                                fontWeight: FontWeight.bold),
-                                                          ),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                              )
-                                            ],
+                                                )
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      )
-                                    ],
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -636,6 +698,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                   children: <Widget>[
                                     MyCircleSlider(onProgressVolumeChage),
                                     Container(
+                                      margin: EdgeInsets.only(bottom: 5),
                                       alignment: Alignment.bottomCenter,
                                       child: Text(
                                         "Volume",
@@ -668,14 +731,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   void handleActionNext() {
     currentAudioPos++;
-    if (currentAudioPos >= listAudioModel.length) {
+    if (currentAudioPos >= listAudioModelContent.length) {
       currentAudioPos = 0;
     }
     audioPlayer.pause();
     stopPlayRotation();
 
-    if (listAudioModel.length > currentAudioPos) {
-      AudioModel audioModel = listAudioModel.elementAt(currentAudioPos);
+    if (listAudioModelContent.length > currentAudioPos) {
+      AudioModel audioModel = listAudioModelContent.elementAt(currentAudioPos);
       currentAudio = audioModel;
       setState(() {
         audioName = audioModel.name;
@@ -683,6 +746,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       });
       if (appState == AppState.PLAYING) {
         playAudio(audioModel.path);
+        startPlayRotation();
         updateStatePlay();
         playAudio(audioModel.path);
       }
@@ -692,13 +756,18 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   void handleActionback() {
     currentAudioPos--;
     if (currentAudioPos < 0) {
-      currentAudioPos = listAudioModel.length - 1;
+      currentAudioPos = listAudioModelContent.length - 1;
+    }
+
+    //TH ko co bai nao
+    if (currentAudioPos < 0) {
+      currentAudioPos = 0;
     }
     audioPlayer.pause();
     stopPlayRotation();
 
-    if (listAudioModel.length > currentAudioPos && currentAudioPos >= 0) {
-      AudioModel audioModel = listAudioModel.elementAt(currentAudioPos);
+    if (listAudioModelContent.length > currentAudioPos && currentAudioPos >= 0) {
+      AudioModel audioModel = listAudioModelContent.elementAt(currentAudioPos);
       currentAudio = audioModel;
       setState(() {
         audioName = audioModel.name;
@@ -714,5 +783,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   void _onCompleteAudio() {
     handleActionNext();
+  }
+
+  void onButtonPauseClick() {
+    if (appState == AppState.PLAYING) {
+      audioPlayer.pause();
+      appState = AppState.PAUSING;
+      stopPlayRotation();
+      updateStatePause();
+    }
   }
 }

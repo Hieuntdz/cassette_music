@@ -61,9 +61,9 @@ class IceBackground extends CustomPainter {
 
     // ve bang
     defaulMaxWidth = size.width / 2 - defaultMarign * 2;
-    double sizeLeft = defaulMaxWidth - defaulMaxWidth * currentAudio / totalAudio;
+    double sizeLeft = defaulMaxWidth - (defaulMaxWidth - defaulMinWidth) * currentAudio / totalAudio;
     sizeLeft = sizeLeft < defaulMinWidth ? defaulMinWidth : sizeLeft;
-    double sizeRight = defaulMaxWidth - defaulMaxWidth * (totalAudio - currentAudio) / totalAudio;
+    double sizeRight = defaulMaxWidth - (defaulMaxWidth - defaulMinWidth) * (totalAudio - currentAudio) / totalAudio;
     sizeRight = sizeRight < defaulMinWidth ? defaulMinWidth : sizeRight;
 
     Paint paint2 = new Paint()..color = HexColor("#6B4E39");

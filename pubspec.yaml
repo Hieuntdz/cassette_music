@@ -63,5 +63,7 @@ flutter:
     - assets/images/bg_mo.png
     - assets/images/ic_next_press.png
     - assets/images/ic_backpress.png
+    - assets/images/ic_arrow_back.png
+    - assets/images/ic_arrow_next.png
 
     - assets/audio.mp3
