@@ -14,10 +14,10 @@ import 'AppState.dart';
 import 'BreakLine.dart';
 import 'Constant.dart';
 import 'ControllerType.dart';
-import 'CustomSliderThumb.dart';
 import 'HexColor.dart';
 import 'ImageController.dart';
 import 'MyCircleSlider.dart';
+import 'SliderBT.dart';
 import 'WidgetIce.dart';
 
 void main() {
@@ -96,6 +96,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   }
 
   Future<Null> init() async {
+    audioPlayer.setBass(750);
+    audioPlayer.setTreble(750);
     audioPlayer.setVolume(0.7);
     playerCompleteSubscription = audioPlayer.onPlayerCompletion.listen((event) {
       _onCompleteAudio();
@@ -184,8 +186,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         handleActionNext();
         break;
       case ControllerType.STOP:
-        stopPlayRotation();
         audioPlayer.pause();
+        appState = AppState.PAUSING;
+        stopPlayRotation();
+        setState(() {
+          icPlayUrl = "assets/images/ic_play.png";
+          icPauseUrl = "assets/images/ic_pause.png";
+        });
         break;
       case ControllerType.MENU:
         audioPlayer.setVolume(1.0);
@@ -196,7 +203,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   //Tua bang
   void longPressEndCallback(ControllerType type, int time) {
-    audioPlayer.
     if (type == ControllerType.NEXT) {
       setState(() {
         icNextUrl = "assets/images/ic_next.png";
@@ -237,6 +243,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       setState(() {
         icBackUrl = "assets/images/ic_backpress.png";
       });
+    }
+  }
+
+  void onProgressSliderBassTrebleCallback(String type, double value) {
+    if (type == "BASS") {
+      audioPlayer.setBass(value);
+    } else if (type == "TREBLE") {
+      audioPlayer.setTreble(value);
     }
   }
 
@@ -452,7 +466,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                 child: Container(
                                                   decoration: BoxDecoration(
                                                     color: Colors.black,
-                                                    borderRadius: BorderRadius.circular(10.0),
+                                                    borderRadius: BorderRadius.circular(7.0),
                                                   ),
                                                   margin: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 7),
                                                   child: Row(
@@ -533,15 +547,19 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                   Flexible(
                                     child: SliderBT(
                                       text: "T",
-                                      progress: 100,
+                                      progress: 1500,
                                       image: image,
+                                      type: "TREBLE",
+                                      onProgressChangeCallback: onProgressSliderBassTrebleCallback,
                                     ),
                                   ),
                                   Flexible(
                                     child: SliderBT(
                                       text: "B",
-                                      progress: 50,
+                                      progress: 1500,
                                       image: image,
+                                      type: "BASS",
+                                      onProgressChangeCallback: onProgressSliderBassTrebleCallback,
                                     ),
                                   ),
                                 ],
@@ -696,70 +714,5 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   void _onCompleteAudio() {
     handleActionNext();
-  }
-}
-
-class SliderBT extends StatefulWidget {
-  String text;
-  double progress;
-  ui.Image image;
-
-  SliderBT({this.text, this.progress, this.image});
-
-  @override
-  State<StatefulWidget> createState() {
-    return SliderBTState(text, progress);
-  }
-}
-
-class SliderBTState extends State<SliderBT> {
-  String text;
-  double progress;
-
-  SliderBTState(this.text, this.progress);
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Row(
-        children: <Widget>[
-          Text(
-            "$text",
-            style: TextStyle(fontSize: AppTextSize.textNormal, color: Colors.white),
-          ),
-          Flexible(
-              child: Container(
-            width: 200,
-            padding: EdgeInsets.all(0),
-            alignment: Alignment.topLeft,
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 5.0,
-                thumbShape: CustomSliderThumb(thumbRadius: 5, thumbHeight: 20, min: 10, max: 100, image: widget.image),
-              ),
-              child: Slider(
-                value: progress,
-                min: 0,
-                max: 100,
-                activeColor: Colors.black,
-                inactiveColor: Colors.black,
-                onChanged: (double newValue) {
-                  print("Progress value : $newValue");
-                  setState(() {
-                    progress = newValue;
-                  });
-                },
-              ),
-            ),
-          ))
-        ],
-      ),
-    );
   }
 }
