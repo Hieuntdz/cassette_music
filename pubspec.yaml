@@ -65,5 +65,6 @@ flutter:
     - assets/images/ic_backpress.png
     - assets/images/ic_arrow_back.png
     - assets/images/ic_arrow_next.png
+    - assets/images/background.png
 
     - assets/audio.mp3
