@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:cassettemusic/HexColor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +43,7 @@ class SliderBTState extends State<SliderBT> {
         children: <Widget>[
           Text(
             "$text",
-            style: TextStyle(fontSize: AppTextSize.textNormal, color: Colors.white),
+            style: TextStyle(fontSize: AppTextSize.textNormal, color: HexColor("#434343")),
           ),
           Flexible(
               child: Container(

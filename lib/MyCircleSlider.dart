@@ -83,19 +83,20 @@ class MyCircleSliderState extends State<MyCircleSlider> {
 //    });
   }
 
+  int buildTimes = 0;
   @override
   Widget build(BuildContext context) {
-    print(TAG + " build");
-//    buildTimes = buildTimes + 1;
-//    if (buildTimes == 2) {
-//      getVolumeSizes();
-//    }
+    buildTimes = buildTimes + 1;
+    if (buildTimes == 2) {
+      getVolumeSizes();
+    }
 
     return OrientationBuilder(builder: (context, orientation) {
-      if (orientation == Orientation.landscape &&
-          mOrientation == Orientation.portrait) {
+      print(TAG + " build $orientation");
+
+      if (orientation == Orientation.landscape && mOrientation == Orientation.portrait) {
         mOrientation = orientation;
-        WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
+//        WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
       }
       return Container(
           key: keyVolume,
@@ -188,18 +189,14 @@ class MyCustomPainter extends CustomPainter {
     double arcAngle = 2 * pi * (50 / 100);
 
     canvas.drawArc(
-        new Rect.fromCircle(
-            center: new Offset(size.width / 2, size.height),
-            radius: size.height - topCircle1),
+        new Rect.fromCircle(center: new Offset(size.width / 2, size.height), radius: size.height - topCircle1),
         -pi,
         arcAngle,
         false,
         paint1);
 
     canvas.drawArc(
-        new Rect.fromCircle(
-            center: new Offset(size.width / 2, size.height),
-            radius: size.height - topCircle2),
+        new Rect.fromCircle(center: new Offset(size.width / 2, size.height), radius: size.height - topCircle2),
         -pi,
         arcAngle,
         false,

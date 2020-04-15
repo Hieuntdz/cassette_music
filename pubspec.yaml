@@ -66,5 +66,13 @@ flutter:
     - assets/images/ic_arrow_back.png
     - assets/images/ic_arrow_next.png
     - assets/images/background.png
+    - assets/images/background.png
+    - assets/images/ic_menu.png
+    - assets/images/ic_stop.png
+    - assets/images/bg_controller.png
+    - assets/images/ic_stop_press.png
+    - assets/images/bg_volume.png
+    - assets/images/bg1.png
+    - assets/images/bg2.png
 
     - assets/audio.mp3
