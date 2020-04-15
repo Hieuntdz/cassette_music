@@ -1,5 +1,6 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
+import 'package:cassettemusic/upgrate/ui/widget/control.dart';
 import 'package:cassettemusic/upgrate/ui/widget/tape.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,10 @@ class _MyHomePageState extends State<MyHomePage>
           ),
           Center(
             child: Tape(),
+          ),
+          Container(
+            alignment: Alignment.bottomCenter,
+            child: Control(),
           ),
         ],
       ),

@@ -20,6 +20,11 @@ class TapeState extends State<Tape> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     appSummary = AppSummary(context);
     final height = appSummary.screenHeight;
@@ -36,7 +41,7 @@ class TapeState extends State<Tape> {
           ),
           Container(
             width: double.infinity,
-            height: height - Const.controlHeight,
+            height: height - (height * Const.controlHeight),
             alignment: Alignment.center,
             child: initContent(height),
           ),
@@ -48,8 +53,8 @@ class TapeState extends State<Tape> {
   Widget initContent(double h) {
     if (h <= 0) return Container();
 
-    final height = h * Const.tapeContentWithTape;
-    final width = height * Const.tapeContentRation;
+    final height = h * Const.tapeContentWithTapeRatio;
+    final width = height * Const.tapeContentRatio;
 
     return Container(
       width: width,
@@ -66,7 +71,7 @@ class TapeState extends State<Tape> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(5),
         ),
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.all(6),
         child: Consumer<TapeBloc>(
           builder: (context, value) {
             return Column(
@@ -90,6 +95,9 @@ class TapeState extends State<Tape> {
                   child: VerticalLine("#E8D0A4", 1),
                 ),
                 initAnim(),
+                SizedBox(
+                  height: 4,
+                ),
                 initTapeLabel(),
               ],
             );
@@ -104,16 +112,15 @@ class TapeState extends State<Tape> {
     String name = (bloc.song != null && bloc.song.name.length > 0)
         ? bloc.song.name
         : Const.songNameLabel;
+    double size = appSummary.screenHeight * Const.tapeContentLabelRatio;
     return Row(
       children: <Widget>[
         Container(
-          decoration: BoxDecoration(
-            color: Colors.black,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Icon(
-            Icons.add,
-            color: Colors.white,
+          width: size,
+          height: size,
+          child: Image.asset(
+            Images.tapeLabel1,
+            fit: BoxFit.fill,
           ),
         ),
         Container(
@@ -156,10 +163,40 @@ class TapeState extends State<Tape> {
   }
 
   Widget initAnim() {
-    return Container();
+    // TODO tính theo tỉ lệ như các cái khác, lười rồi
+    final width = 360.0;
+    final heigth = 120.0;
+    return Container(
+      width: width,
+      height: heigth,
+      alignment: Alignment.center,
+      child: Stack(
+        children: <Widget>[
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            child: Image.asset(
+              Images.tapeCenterBackground1,
+              fit: BoxFit.fill,
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            padding: EdgeInsets.all(5),
+            child: Image.asset(
+              Images.tapeCenterBackground2,
+              fit: BoxFit.fill,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget initTapeLabel() {
-    return Container();
+    return Container(
+      child: Image.asset(Images.tapeLabel2),
+    );
   }
 }
