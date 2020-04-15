@@ -264,7 +264,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   Widget getRotateImage() {
     print("animationController value : ${animationController.value}");
     return Container(
-      margin: EdgeInsets.only(top: 3, bottom: 3),
       height: double.infinity,
       child: Stack(
         children: <Widget>[
@@ -410,18 +409,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: <Widget>[
-                                    Card(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(Radius.circular(5)),
-                                      ),
-                                      color: Colors.black,
-                                      child: Container(
-                                        padding: EdgeInsets.all(5),
-                                        child: Text(
-                                          "A",
-                                          style:
-                                              TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                                        ),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 7, bottom: 2),
+                                      width: 30,
+                                      height: 30,
+                                      child: Image.asset(
+                                        "assets/images/a.png",
+                                        fit: BoxFit.fill,
                                       ),
                                     ),
                                     Flexible(
@@ -447,7 +441,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                               ),
                               Container(
                                 alignment: Alignment.bottomRight,
-                                margin: EdgeInsets.only(top: 7, bottom: 5, right: 20),
+                                margin: EdgeInsets.only(top: 7, bottom: 1, right: 20),
                                 child: Text(audioFolder,
                                     style: TextStyle(fontSize: AppTextSize.textNormal, color: Colors.black)),
                               ),
@@ -492,7 +486,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                     height: double.infinity,
                                                     margin: EdgeInsets.all(10),
                                                     child: Container(
-                                                      padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                                                      padding: EdgeInsets.only(left: 3, right: 3, top: 5, bottom: 5),
                                                       child: Row(
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         mainAxisAlignment: MainAxisAlignment.start,
@@ -500,7 +494,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                           Expanded(
                                                               flex: 2,
                                                               child: Container(
-                                                                margin: EdgeInsets.only(left: 5),
+                                                                margin: EdgeInsets.only(left: 5, top: 5, bottom: 5),
                                                                 alignment: Alignment.centerLeft,
                                                                 child: getRotateImage(),
                                                               )),
@@ -508,14 +502,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                             //BANG
                                                             flex: 3,
                                                             child: Container(
-                                                              margin: EdgeInsets.only(top: 4, bottom: 4),
+                                                              margin:
+                                                                  EdgeInsets.only(left: 2, right: 2, top: 5, bottom: 5),
                                                               child: WidgetIce(currentAudioPos, totalAudio),
                                                             ),
                                                           ),
                                                           Expanded(
                                                             flex: 2,
                                                             child: Container(
-                                                              margin: EdgeInsets.only(right: 5),
+                                                              margin: EdgeInsets.only(right: 5, top: 5, bottom: 5),
                                                               alignment: Alignment.centerRight,
                                                               child: getRotateImage(),
                                                             ),
@@ -533,53 +528,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                       Expanded(
                                         flex: 1,
                                         child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius: BorderRadius.circular(5.0),
-                                          ),
-                                          margin: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 7),
-                                          child: Row(
-                                            children: <Widget>[
-                                              Expanded(
-                                                flex: 1,
-                                                child: Container(
-                                                  alignment: Alignment.centerLeft,
-                                                  margin: EdgeInsets.only(left: 30),
-                                                  child: Text(
-                                                    "Maxell",
-                                                    style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: AppTextSize.textHeader,
-                                                        fontWeight: FontWeight.bold),
-                                                  ),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 1,
-                                                child: Container(
-                                                  alignment: Alignment.center,
-                                                  child: Text(
-                                                    "POSITION-NORMAL",
-                                                    style: TextStyle(
-                                                        color: Colors.white, fontSize: AppTextSize.textNormal),
-                                                  ),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 1,
-                                                child: Container(
-                                                  alignment: Alignment.centerRight,
-                                                  margin: EdgeInsets.only(right: 30),
-                                                  child: Text(
-                                                    "90",
-                                                    style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: AppTextSize.textHeader,
-                                                        fontWeight: FontWeight.bold),
-                                                  ),
-                                                ),
-                                              )
-                                            ],
+                                          width: double.infinity,
+                                          height: double.infinity,
+                                          margin: EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
+                                          padding: EdgeInsets.only(top: 3, bottom: 3),
+                                          child: Image.asset(
+                                            "assets/images/maxell.png",
+                                            fit: BoxFit.fill,
                                           ),
                                         ),
                                       )
