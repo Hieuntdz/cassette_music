@@ -88,7 +88,7 @@ class MyCircleSliderState extends State<MyCircleSlider> {
   Widget build(BuildContext context) {
     buildTimes = buildTimes + 1;
     if (buildTimes == 2) {
-      getVolumeSizes();
+      WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
     }
 
     return OrientationBuilder(builder: (context, orientation) {

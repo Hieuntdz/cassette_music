@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'file:///E:/FlutterProject/CassetteMusic/cassette_music/lib/orign/Constant.dart';
-
 import 'BreakLine.dart';
+import 'Constant.dart';
 import 'HexColor.dart';
 import 'model/AudioModel.dart';
 
