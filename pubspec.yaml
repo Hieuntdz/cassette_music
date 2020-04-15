@@ -75,5 +75,20 @@ flutter:
     - assets/images/bg_volume.png
     - assets/images/bg1.png
     - assets/images/bg2.png
+    - assets/images/a.png
+    - assets/images/maxell.png
+    - assets/images/logo_next.png
+    - assets/images/logo_next_press.png
+    - assets/images/logo_back.png
+    - assets/images/logo_back_press.png
+    - assets/images/logo_play_press.png
+    - assets/images/logo_pause.png
+    - assets/images/logo_pause_press.png
+    - assets/images/logo_stop.png
+    - assets/images/logo_stop_press.png
+    - assets/images/logo_menu.png
+    - assets/images/logo_menu_press.png
+    - assets/images/ic_knot.png
+    - assets/images/ic_knot_press.png
 
     - assets/audio.mp3

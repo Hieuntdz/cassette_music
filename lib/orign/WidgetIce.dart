@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -42,11 +44,9 @@ class IceBackground extends CustomPainter {
 
   IceBackground(this.currentAudio, this.totalAudio);
 
-  int defaulRadius = 15; // defaul độ cong là 7
-  double defaulMaxWidth; // do dai lon nha của 1 ben bang
-  double defaulMinWidth = 20; // do dai lon nha của 1 ben bang
-
   double defaultMarign = 5;
+  double rMin; // ban kinh duong tron nho nhat
+  double rMax; // ban kinh duong tron lon nhat
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -60,34 +60,56 @@ class IceBackground extends CustomPainter {
     canvas.drawPath(path, paint1);
 
     // ve bang
-    defaulMaxWidth = size.width / 2 - defaultMarign * 2;
-    double sizeLeft = defaulMaxWidth - (defaulMaxWidth - defaulMinWidth) * currentAudio / totalAudio;
-    sizeLeft = sizeLeft < defaulMinWidth ? defaulMinWidth : sizeLeft;
-    double sizeRight = defaulMaxWidth - (defaulMaxWidth - defaulMinWidth) * (totalAudio - currentAudio) / totalAudio;
-    sizeRight = sizeRight < defaulMinWidth ? defaulMinWidth : sizeRight;
+    rMin = (size.height - defaultMarign * 2) / 2;
+    rMax = (size.width - defaultMarign * 2) / 2;
+    double defaulPosBottom = size.height - defaultMarign;
+    double sizeLeft = rMin + (rMax - rMin) * (1 - currentAudio / totalAudio); // ban kinh duong torn bne trai
+    double sizeRight =
+        rMin + (rMax - rMin) * (1 - (totalAudio - currentAudio) / totalAudio); // ban kinh duong tron ben phai
+
+    // kích thước hình chữ nhật chứa cái băng. đã bỏ khoảng margin
+    double iceWith = size.width - defaultMarign * 2;
+    double iceHeight = size.height - defaultMarign * 2;
 
     Paint paint2 = new Paint()..color = HexColor("#6B4E39");
+    double leftPoint1, leftPoint2, leftPoint3, leftPoint4, leftPoint15;
+    if (sizeLeft < iceHeight / 2) {
+      var pathLeft1 = Path()
+        ..moveTo(defaultMarign, iceHeight - sizeLeft)
+        ..quadraticBezierTo(defaultMarign + sizeLeft, size.height / 2, defaultMarign, size.height / 2 + sizeRight)
+        ..lineTo(defaultMarign, iceHeight - sizeLeft);
+      canvas.drawPath(pathLeft1, paint2);
+    } else {
+      var pathLeft2 = Path()
+        ..moveTo(defaultMarign, defaultMarign)
+        ..lineTo(defaultMarign + sqrt(sizeLeft * sizeLeft - iceHeight * iceHeight / 4), defaultMarign)
+        ..quadraticBezierTo(defaultMarign + sizeLeft, size.height / 2,
+            defaultMarign + sqrt(sizeLeft * sizeLeft - iceHeight * iceHeight / 4), iceHeight + defaultMarign)
+        ..lineTo(defaultMarign, iceHeight + defaultMarign)
+        ..lineTo(defaultMarign, defaultMarign);
+      canvas.drawPath(pathLeft2, paint2);
+    }
 
-    double defaulPosBottom = size.height - defaultMarign;
-    print(TAG + "defaulPosBottom $defaulPosBottom");
-    print(TAG + "SIZE left $sizeLeft");
-    var pathLeft = Path();
-    pathLeft.moveTo(defaultMarign, defaultMarign);
-    pathLeft.lineTo(defaultMarign, defaulPosBottom);
-    pathLeft.lineTo(defaultMarign + sizeLeft - defaulRadius, defaulPosBottom);
-    pathLeft.quadraticBezierTo(
-        defaultMarign + sizeLeft, size.height / 2, defaultMarign + sizeLeft - defaulRadius, defaultMarign);
-    pathLeft.lineTo(defaultMarign, defaultMarign);
-    canvas.drawPath(pathLeft, paint2);
-
-    var pathRight = Path()
-      ..moveTo(size.width - defaultMarign, defaultMarign)
-      ..lineTo(size.width - defaultMarign, defaulPosBottom)
-      ..lineTo(size.width - defaultMarign - sizeRight + defaulRadius, defaulPosBottom)
-      ..quadraticBezierTo(size.width - defaultMarign - sizeRight, size.height / 2,
-          size.width - defaultMarign - sizeRight + defaulRadius, defaultMarign)
-      ..lineTo(size.width - defaultMarign, defaultMarign);
-    canvas.drawPath(pathRight, paint2);
+    if (sizeRight < iceHeight / 2) {
+      var pathRight1 = Path()
+        ..moveTo(size.width - defaultMarign, size.height / 2 - sizeRight)
+        ..quadraticBezierTo(size.width - defaultMarign - sizeRight, size.height / 2, size.width - defaultMarign,
+            size.height / 2 + sizeRight)
+        ..lineTo(size.width - defaultMarign, size.height / 2 - sizeRight);
+      canvas.drawPath(pathRight1, paint2);
+    } else {
+      var pathRight = Path()
+        ..moveTo(size.width - defaultMarign, defaultMarign)
+        ..lineTo(size.width - defaultMarign - sqrt(sizeRight * sizeRight - iceHeight * iceHeight / 4), defaultMarign)
+        ..quadraticBezierTo(
+            defaultMarign + sizeLeft,
+            size.height / 2,
+            size.width - defaultMarign - sqrt(sizeRight * sizeRight - iceHeight * iceHeight / 4),
+            iceHeight + defaultMarign)
+        ..lineTo(size.width - defaultMarign, iceHeight + defaultMarign)
+        ..lineTo(defaultMarign, defaultMarign);
+      canvas.drawPath(pathRight, paint2);
+    }
   }
 
   @override
