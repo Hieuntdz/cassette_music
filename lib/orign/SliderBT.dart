@@ -1,11 +1,11 @@
 import 'dart:ui' as ui;
 
-import 'package:cassettemusic/HexColor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'Constant.dart';
 import 'CustomSliderThumb.dart';
+import 'HexColor.dart';
 
 class SliderBT extends StatefulWidget {
   String text;

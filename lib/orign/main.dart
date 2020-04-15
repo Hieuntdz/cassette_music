@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:cassettemusic/MenuScreen.dart';
-import 'package:cassettemusic/model/AudioModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -16,10 +14,12 @@ import 'Constant.dart';
 import 'ControllerType.dart';
 import 'HexColor.dart';
 import 'ImageController.dart';
+import 'MenuScreen.dart';
 import 'MyCircleSlider.dart';
 import 'SliderBT.dart';
 import 'WidgetIce.dart';
 import 'audioplayer/audioplayers.dart';
+import 'model/AudioModel.dart';
 
 void main() {
   runApp(MyApp());
