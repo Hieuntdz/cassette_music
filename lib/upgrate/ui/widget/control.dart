@@ -1,6 +1,7 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
+import 'package:cassettemusic/upgrate/ui/widget/button.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -80,59 +81,36 @@ class ControlState extends State<Control> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          buildButton(bloc, bloc.rewind),
+          CButton(
+            bloc: bloc,
+            state: bloc.rewind,
+          ),
           SizedBox(width: Const.controlButtonSpace),
-          buildButton(bloc, bloc.play),
+          CButton(
+            bloc: bloc,
+            state: bloc.play,
+          ),
           SizedBox(width: Const.controlButtonSpace),
-          buildButton(bloc, bloc.forward),
+          CButton(
+            bloc: bloc,
+            state: bloc.forward,
+          ),
           SizedBox(width: Const.controlButtonSpace),
-          buildButton(bloc, bloc.pause),
+          CButton(
+            bloc: bloc,
+            state: bloc.pause,
+          ),
           SizedBox(width: Const.controlButtonSpace),
-          buildButton(bloc, bloc.stop),
+          CButton(
+            bloc: bloc,
+            state: bloc.stop,
+          ),
           SizedBox(width: Const.controlButtonSpace),
-          buildButton(bloc, bloc.eject),
+          CButton(
+            bloc: bloc,
+            state: bloc.eject,
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget buildButton(ControlBloc bloc, ButtonState state) {
-    return Expanded(
-      flex: 1,
-      child: GestureDetector(
-        onTapDown: (details) {
-          print('onTapDown');
-          bloc.tapButton(state);
-        },
-        onTapUp:(details) {
-          print('onTapUp');
-          bloc.tapCancel(state);
-        },
-        onLongPressStart: (details) {
-          print('onLongPressStart');
-        },
-        onLongPressEnd:(details) {
-          print('onLongPressEnd');
-          bloc.tapCancel(state);
-        },
-        onLongPress: () {},
-        child: Stack(
-          children: <Widget>[
-            Center(
-              child: Image.asset(state.currentBackground),
-            ),
-            Container(
-              alignment: Alignment.center,
-              margin: EdgeInsets.only(bottom: 8),
-              child: Image.asset(
-                state.currentIcon,
-                fit: BoxFit.fill,
-                width: Const.controlButtonIconSize,
-                height: Const.controlButtonIconSize,
-              ),
-            )
-          ],
-        ),
       ),
     );
   }
