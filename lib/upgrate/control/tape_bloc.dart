@@ -7,11 +7,6 @@ class TapeBloc extends BlocBase {
 
   TapeBloc() {
     percent = 0;
-    song = new Song(
-      name: '',
-      author: '',
-      location: '',
-    );
   }
 
   void setPercent(int value) {

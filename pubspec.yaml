@@ -23,6 +23,11 @@ dependencies:
   # https://pub.dev/packages/bloc_pattern#-installing-tab-
   bloc_pattern: ^2.5.1
 
+  flutter_file_manager: ^0.2.0
+  path: 1.6.4
+  path_provider: ^1.6.5
+  permission_handler: ^5.0.0+hotfix.3
+
   audioplayers: ^0.15.0
   provider: 4.0.5
 
@@ -45,51 +50,6 @@ flutter:
 
   assets:
     - assets/images/upgrate/
-    - assets/images/ic_slider.png
-    - assets/images/ic_turn_arrow.png
-    - assets/images/ic_turn_arrow_background.png
-    - assets/images/ic_back.png
-    - assets/images/ic_next.png
-    - assets/images/ic_pause.png
-    - assets/images/ic_playing.png
-    - assets/images/ic_tmp1.png
-    - assets/images/ic_tmp2.png
-    - assets/images/ic_play.png
-    - assets/images/ic_pauseing.png
-    - assets/images/ic_thumb.png
-    - assets/images/ic_bg_circle_volume.png
-    - assets/images/ic_circle_blue.png
-    - assets/images/app_background.png
-    - assets/images/bg_bang.png
-    - assets/images/bg_mo.png
-    - assets/images/bg_mo.png
-    - assets/images/ic_next_press.png
-    - assets/images/ic_backpress.png
-    - assets/images/ic_arrow_back.png
-    - assets/images/ic_arrow_next.png
-    - assets/images/background.png
-    - assets/images/background.png
-    - assets/images/ic_menu.png
-    - assets/images/ic_stop.png
-    - assets/images/bg_controller.png
-    - assets/images/ic_stop_press.png
-    - assets/images/bg_volume.png
-    - assets/images/bg1.png
-    - assets/images/bg2.png
-    - assets/images/a.png
-    - assets/images/maxell.png
-    - assets/images/logo_next.png
-    - assets/images/logo_next_press.png
-    - assets/images/logo_back.png
-    - assets/images/logo_back_press.png
-    - assets/images/logo_play_press.png
-    - assets/images/logo_pause.png
-    - assets/images/logo_pause_press.png
-    - assets/images/logo_stop.png
-    - assets/images/logo_stop_press.png
-    - assets/images/logo_menu.png
-    - assets/images/logo_menu_press.png
-    - assets/images/ic_knot.png
-    - assets/images/ic_knot_press.png
+    - assets/images/
 
     - assets/audio.mp3

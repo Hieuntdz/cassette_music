@@ -1,4 +1,5 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
+import 'package:cassettemusic/upgrate/control/control_bloc.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/ui/widget/control.dart';
 import 'package:cassettemusic/upgrate/ui/widget/tape.dart';
@@ -19,10 +20,10 @@ class _MyHomePageState extends State<MyHomePage>
   @override
   void initState() {
     super.initState();
-
-    // TODO : Day la test, sau no la doan query flutter
-    TapeBloc tapeBloc = BlocProvider.getBloc<TapeBloc>();
-    return tapeBloc.dummy();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ControlBloc controlBloc = BlocProvider.getBloc<ControlBloc>();
+      controlBloc.getSongs();
+    });
   }
 
   @override
@@ -51,6 +52,12 @@ class _MyHomePageState extends State<MyHomePage>
           ),
         ],
       ),
+//      floatingActionButton: FloatingActionButton(
+//        onPressed: () {
+//          ControlBloc controlBloc = BlocProvider.getBloc<ControlBloc>();
+//          controlBloc.getSongs();
+//        },
+//      ),
     );
   }
 }

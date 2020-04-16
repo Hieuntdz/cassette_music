@@ -20,11 +20,18 @@ class Const {
     min: 0,
     max: 100,
   );
+  static final controlButtonSpace = 2.0;
+  static final controlButtonIconSize = 16.0;
 
   static final songNameTextSize = 16.0;
   static final songNameLabel = 'Name';
   static final songDesTextSize = 16.0;
   static final songDesLabel = 'Location';
+
+  static final filter = [
+    'mp3',
+    'mp4',
+  ];
 }
 
 class Images {

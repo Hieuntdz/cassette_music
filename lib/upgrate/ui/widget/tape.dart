@@ -165,10 +165,10 @@ class TapeState extends State<Tape> {
   Widget initAnim() {
     // TODO tính theo tỉ lệ như các cái khác, lười rồi
     final width = 360.0;
-    final heigth = 120.0;
+    final height = 120.0;
     return Container(
       width: width,
-      height: heigth,
+      height: height,
       alignment: Alignment.center,
       child: Stack(
         children: <Widget>[
