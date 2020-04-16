@@ -23,7 +23,7 @@ class SongProvider {
           songs.add(Song(
             name: path.basename(item.path),
             location: location,
-            absoluteLocation: item.path,
+            path: item.path,
             author: '',
           ));
         }
@@ -61,12 +61,12 @@ class Song {
   String name;
   String author;
   String location;
-  String absoluteLocation;
+  String path;
 
   Song({
     this.name,
     this.author,
     this.location,
-    this.absoluteLocation,
+    this.path,
   });
 }

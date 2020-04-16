@@ -1,4 +1,6 @@
 class Const {
+  static final isLog = true;
+
   static final tapeRatio = 1120 / 708;
   static final tapeContentRatio = 900 / 485;
   static final tapeContentWithTapeRatio = 0.65;
@@ -6,19 +8,19 @@ class Const {
 
   static final controlHeight = 0.17;
   static final SoundData volume = SoundData(
-    def: 50,
-    min: 0,
-    max: 100,
+    def: 0.7,
+    min: 0.0,
+    max: 1.0,
   );
   static final SoundData bass = SoundData(
-    def: 50,
-    min: 0,
-    max: 100,
+    def: 750.0,
+    min: 0.0,
+    max: 1000.0,
   );
   static final SoundData treble = SoundData(
-    def: 50,
-    min: 0,
-    max: 100,
+    def: 750.0,
+    min: 0.0,
+    max: 1000.0,
   );
   static final controlButtonSpace = 2.0;
   static final controlButtonIconSize = 16.0;
@@ -82,9 +84,9 @@ class ButtonData {
 }
 
 class SoundData {
-  int def;
-  int min;
-  int max;
+  double def;
+  double min;
+  double max;
 
   SoundData({
     this.def,

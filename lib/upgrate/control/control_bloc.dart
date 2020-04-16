@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bloc_pattern/bloc_pattern.dart';
@@ -37,19 +38,25 @@ class ControlBloc extends BlocBase {
     eject = ButtonState(5, Images.eject, false);
   }
 
-  void setBass(int value) {
+  @override
+  void dispose() {
+    super.dispose();
+    audioControl.dispose();
+  }
+
+  void setBass(double value) {
     equalizer.bass = value;
     equalizer.verify();
     notifyListeners();
   }
 
-  void setTreble(int value) {
+  void setTreble(double value) {
     equalizer.treble = value;
     equalizer.verify();
     notifyListeners();
   }
 
-  void setVolume(int value) {
+  void setVolume(double value) {
     equalizer.treble = value;
     equalizer.verify();
     notifyListeners();
@@ -109,15 +116,32 @@ class ControlBloc extends BlocBase {
     notifyListeners();
   }
 
+  longPress(ButtonState state) {
+    if (state == rewind) {
+      // TODO Tua bài như nào thì tua
+    } else if (state == forward) {
+      // TODO Tua bài như nào thì tua
+    } else {
+      // Những thằng nào quan tâm thì thêm vào
+    }
+  }
+
   tapButton(ButtonState state) {
-    state.trigger();
+    if (state == play && pause.isPressed == true) {
+      // Trường hợp ấn play khi pause đang ấn
+      pause.nonPress();
+    } else {
+      state.trigger();
+    }
     notifyListeners();
   }
 
-  tapCancel(ButtonState state) {
+  tapCancel(ButtonState state, bool isLongPress) {
     if (state == pause && play.isPressed == false) {
+      // Trường hợp ấn pause khi play không được ấn
       state.nonPress();
     } else if (state == stop) {
+      // Trường hợp ấn stop
       rewind.nonPress();
       play.nonPress();
       forward.nonPress();
@@ -128,13 +152,45 @@ class ControlBloc extends BlocBase {
       state.cancel();
     }
     notifyListeners();
+
+    if (state == rewind) {
+      if (isLongPress) {
+        // TODO kill cái gì khi tạo trong long press
+      } else {
+        // TODO kill cái gì thì tạo trong tap
+      }
+    } else if (state == forward) {
+      if (isLongPress) {
+        // TODO kill cái gì khi tạo trong long press
+      } else {
+        // TODO kill cái gì thì tạo trong tap
+      }
+    } else if (state == play) {
+      if (tapeBloc.song != null) {
+        // TODO : chỗ này đáng ra phải resume tiếp nhưng chả biết như nào
+        audioControl.stop();
+        audioControl.play(tapeBloc.song.path);
+      } else {
+        print('Error song ?');
+      }
+    } else if (state == pause) {
+      if (state.isPressed) {
+        audioControl.pause();
+      } else {
+        audioControl.resume();
+      }
+    } else if (state == stop) {
+      audioControl.stop();
+    } else if (state == eject) {
+      // TODO : mở ra cái chọn bài
+    }
   }
 }
 
 class Equalizer {
-  int bass;
-  int treble;
-  int volume;
+  double bass;
+  double treble;
+  double volume;
 
   Equalizer({
     this.bass,
@@ -202,4 +258,58 @@ class ButtonState {
 }
 
 class AudioControl {
+  AudioPlayer audioPlayer = AudioPlayer();
+  StreamSubscription complete;
+  StreamSubscription error;
+  StreamSubscription duration;
+  Duration audiDuration;
+
+  AudioControl() {
+    AudioPlayer.logEnabled = Const.isLog;
+
+    audioPlayer = AudioPlayer(
+      playerId: 'audio',
+      mode: PlayerMode.LOW_LATENCY,
+    );
+    audioPlayer.setBass(Const.bass.def);
+    audioPlayer.setTreble(Const.treble.def);
+    audioPlayer.setVolume(Const.volume.def);
+
+    complete = audioPlayer.onPlayerCompletion.listen((event) {
+      print('AudioControl complete');
+    });
+    error = audioPlayer.onPlayerError.listen((msg) {
+      print('AudioControl error $msg');
+    });
+    duration = audioPlayer.onAudioPositionChanged.listen((event) {
+      print('AudioControl duration change $event');
+      audiDuration = event;
+    });
+  }
+
+  play(String path) async {
+    if (audioPlayer.isLocalUrl(path)) {
+      return await audioPlayer.play(path, isLocal: true);
+    } else {
+      return await audioPlayer.play(path, isLocal: false);
+    }
+  }
+
+  resume() async {
+    return await audioPlayer.resume();
+  }
+
+  pause() async {
+    return await audioPlayer.pause();
+  }
+
+  stop() async {
+    return await audioPlayer.stop();
+  }
+
+  dispose() {
+    if (complete != null) complete.cancel();
+    if (error != null) error.cancel();
+    if (duration != null) duration.cancel();
+  }
 }
