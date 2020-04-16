@@ -87,7 +87,7 @@ class MyCircleSliderState extends State<MyCircleSlider> {
   @override
   Widget build(BuildContext context) {
     buildTimes = buildTimes + 1;
-    if (buildTimes == 2) {
+    if (buildTimes == 3) {
       WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
     }
 

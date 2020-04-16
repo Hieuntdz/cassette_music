@@ -7,4 +7,5 @@ class AudioModel {
     var artist: String = ""
     var genre: String = ""
     var folder: String = ""
+    var duartion : Int = 0;
 }

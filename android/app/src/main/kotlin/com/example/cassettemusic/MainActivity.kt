@@ -88,6 +88,9 @@ class MainActivity : FlutterActivity() {
                     audioModel.genre = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
                             ?: ""
                     audioModel.folder = file.parentFile.name
+                    val durationStr: String = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                    val millSecond = durationStr.toInt()
+                    audioModel.duartion = millSecond;
 
                     Log.d("BBBBBBBBBBBBBBBBBBBBBB", "Artist : " + audioModel.artist)
                     Log.d("BBBBBBBBBBBBBBBBBBBBBB", "album : " + audioModel.album)
