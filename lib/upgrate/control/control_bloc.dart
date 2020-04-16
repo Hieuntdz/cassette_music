@@ -127,9 +127,14 @@ class ControlBloc extends BlocBase {
   }
 
   tapButton(ButtonState state) {
-    if (state == play && pause.isPressed == true) {
+    if (state == play && audioControl.state == AudioState.pause) {
       // Trường hợp ấn play khi pause đang ấn
+      play.press();
       pause.nonPress();
+    } else if (state == play &&
+        (audioControl.state == AudioState.play ||
+            audioControl.state == AudioState.resume)) {
+      // chả làm gì cả, tắt thế đéo nào được, pause với stop chứ
     } else {
       state.trigger();
     }
@@ -137,7 +142,10 @@ class ControlBloc extends BlocBase {
   }
 
   tapCancel(ButtonState state, bool isLongPress) {
-    if (state == pause && play.isPressed == false) {
+    if (state == pause &&
+        (audioControl.state == AudioState.prepare ||
+            audioControl.state == AudioState.pause ||
+            audioControl.state == AudioState.stop)) {
       // Trường hợp ấn pause khi play không được ấn
       state.nonPress();
     } else if (state == stop) {
@@ -166,12 +174,15 @@ class ControlBloc extends BlocBase {
         // TODO kill cái gì thì tạo trong tap
       }
     } else if (state == play) {
-      if (tapeBloc.song != null) {
-        // TODO : chỗ này đáng ra phải resume tiếp nhưng chả biết như nào
-        audioControl.stop();
-        audioControl.play(tapeBloc.song.path);
-      } else {
-        print('Error song ?');
+      if (audioControl.state == AudioState.pause) {
+        audioControl.resume();
+      } else if (audioControl.state == AudioState.prepare ||
+          audioControl.state == AudioState.stop) {
+        if (tapeBloc.song != null) {
+          audioControl.play(tapeBloc.song.path);
+        } else {
+          print('Error song ?');
+        }
       }
     } else if (state == pause) {
       if (state.isPressed) {
@@ -180,7 +191,9 @@ class ControlBloc extends BlocBase {
         audioControl.resume();
       }
     } else if (state == stop) {
-      audioControl.stop();
+//      audioControl.stop();
+      // Stop trên casset bản chất chỉ là pause
+      audioControl.pause();
     } else if (state == eject) {
       // TODO : mở ra cái chọn bài
     }
@@ -257,23 +270,28 @@ class ButtonState {
   }
 }
 
+enum AudioState { prepare, play, resume, pause, stop }
+
 class AudioControl {
   AudioPlayer audioPlayer = AudioPlayer();
   StreamSubscription complete;
   StreamSubscription error;
   StreamSubscription duration;
   Duration audiDuration;
+  AudioState state;
 
   AudioControl() {
     AudioPlayer.logEnabled = Const.isLog;
+    state = AudioState.prepare;
 
     audioPlayer = AudioPlayer(
       playerId: 'audio',
-      mode: PlayerMode.LOW_LATENCY,
+//      mode: PlayerMode.LOW_LATENCY,
     );
-    audioPlayer.setBass(Const.bass.def);
-    audioPlayer.setTreble(Const.treble.def);
-    audioPlayer.setVolume(Const.volume.def);
+
+//    audioPlayer.setBass(Const.bass.def);
+//    audioPlayer.setTreble(Const.treble.def);
+//    audioPlayer.setVolume(Const.volume.def);
 
     complete = audioPlayer.onPlayerCompletion.listen((event) {
       print('AudioControl complete');
@@ -288,6 +306,8 @@ class AudioControl {
   }
 
   play(String path) async {
+    print('AudioControl play');
+    state = AudioState.play;
     if (audioPlayer.isLocalUrl(path)) {
       return await audioPlayer.play(path, isLocal: true);
     } else {
@@ -296,18 +316,25 @@ class AudioControl {
   }
 
   resume() async {
+    print('AudioControl resume');
+    state = AudioState.resume;
     return await audioPlayer.resume();
   }
 
   pause() async {
+    print('AudioControl pause');
+    state = AudioState.pause;
     return await audioPlayer.pause();
   }
 
   stop() async {
+    print('AudioControl stop');
+    state = AudioState.stop;
     return await audioPlayer.stop();
   }
 
   dispose() {
+    print('AudioControl dispose');
     if (complete != null) complete.cancel();
     if (error != null) error.cancel();
     if (duration != null) duration.cancel();

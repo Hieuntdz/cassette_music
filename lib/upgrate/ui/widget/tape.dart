@@ -2,6 +2,7 @@ import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
 import 'package:cassettemusic/upgrate/ui/widget/line.dart';
+import 'package:cassettemusic/upgrate/ui/widget/reel.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -187,6 +188,40 @@ class TapeState extends State<Tape> {
             child: Image.asset(
               Images.tapeCenterBackground2,
               fit: BoxFit.fill,
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            padding: EdgeInsets.all(5),
+            child: CustomPaint(
+              painter: ReelPainter(4, 5),
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            padding: EdgeInsets.all(5),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Image.asset(
+                    Images.tapeReelBorder,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Image.asset(
+                    Images.tapeReelBorder,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

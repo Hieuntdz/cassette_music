@@ -1,5 +1,5 @@
 class Const {
-  static final isLog = true;
+  static final isLog = false;
 
   static final tapeRatio = 1120 / 708;
   static final tapeContentRatio = 900 / 485;
@@ -44,6 +44,8 @@ class Images {
   static final tapeCenterBackground2 = '$root/tape_center_bg2.png';
   static final tapeLabel1 = '$root/tape_label_1.png';
   static final tapeLabel2 = '$root/tape_label_2.png';
+  static final tapeReelBorder = '$root/tape_reel_border.png';
+  static final tapeReel = '$root/tape_reel.png';
 
   static final controlBackground = '$root/control_background.png';
   static final controlButton = '$root/control_button.png';
