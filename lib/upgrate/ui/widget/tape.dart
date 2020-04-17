@@ -1,8 +1,8 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
+import 'package:cassettemusic/orign/WidgetIce.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
 import 'package:cassettemusic/upgrate/ui/widget/line.dart';
-import 'package:cassettemusic/upgrate/ui/widget/reel.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,12 +12,17 @@ class Tape extends StatefulWidget {
   TapeState createState() => TapeState();
 }
 
-class TapeState extends State<Tape> {
+class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
   AppSummary appSummary;
+  AnimationController animationController;
 
   @override
   void initState() {
     super.initState();
+    animationController = AnimationController(
+      vsync: this,
+      duration: new Duration(seconds: 3),
+    );
   }
 
   @override
@@ -95,9 +100,12 @@ class TapeState extends State<Tape> {
                   ),
                   child: VerticalLine("#E8D0A4", 1),
                 ),
-                initAnim(),
                 SizedBox(
-                  height: 4,
+                  height: 12,
+                ),
+                initAnim(value),
+                SizedBox(
+                  height: 12,
                 ),
                 initTapeLabel(),
               ],
@@ -145,28 +153,26 @@ class TapeState extends State<Tape> {
     String des = (bloc.song != null && bloc.song.location.length > 0)
         ? bloc.song.location
         : Const.songDesLabel;
-    return Consumer<TapeBloc>(
-      builder: (context, bloc) {
-        return Container(
-          alignment: Alignment.centerRight,
-          child: Text(
-            des,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: Const.songDesTextSize,
-              color: Colors.black,
-            ),
-          ),
-        );
-      },
+    return Container(
+      alignment: Alignment.centerRight,
+      child: Text(
+        des,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: Const.songDesTextSize,
+          color: Colors.black,
+        ),
+      ),
     );
   }
 
-  Widget initAnim() {
+  Widget initAnim(TapeBloc bloc) {
     // TODO tính theo tỉ lệ như các cái khác, lười rồi
     final width = 360.0;
-    final height = 120.0;
+    final height = 100.0;
+    final padding = 4.0;
+    final subPadding = 12.0;
     return Container(
       width: width,
       height: height,
@@ -184,44 +190,70 @@ class TapeState extends State<Tape> {
           Container(
             width: double.infinity,
             height: double.infinity,
-            padding: EdgeInsets.all(5),
+            padding: EdgeInsets.all(padding),
             child: Image.asset(
               Images.tapeCenterBackground2,
               fit: BoxFit.fill,
             ),
           ),
+//          Container(
+//            width: double.infinity,
+//            height: double.infinity,
+//            padding: EdgeInsets.all(padding),
+//            child: CustomPaint(
+//              painter: ReelPainter(padding, padding),
+//            ),
+//          ),
           Container(
             width: double.infinity,
             height: double.infinity,
-            padding: EdgeInsets.all(5),
-            child: CustomPaint(
-              painter: ReelPainter(4, 5),
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            padding: EdgeInsets.all(5),
+            padding: EdgeInsets.all(subPadding),
             child: Row(
               children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: Image.asset(
-                    Images.tapeReelBorder,
-                    fit: BoxFit.fill,
-                  ),
+                initWheel(height - subPadding),
+                Container(
+                  width: (width - subPadding * 2) - ((height - subPadding) * 2),
+                  height: height - subPadding,
+                  child: WidgetIce(bloc.percent.toDouble(), 100),
                 ),
-                Expanded(
-                  flex: 3,
-                  child: Container(),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Image.asset(
-                    Images.tapeReelBorder,
-                  ),
-                ),
+                initWheel(height - subPadding),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget initWheel(double size) {
+    int padding = 24;
+    return Container(
+      width: size,
+      height: size,
+      padding: EdgeInsets.all(0),
+      child: Stack(
+        children: <Widget>[
+          Image.asset(
+            Images.tapeReelBorder,
+            fit: BoxFit.fill,
+            width: size,
+            height: size,
+          ),
+          Center(
+            child: AnimatedBuilder(
+              animation: animationController,
+              builder: (BuildContext context, Widget _widget) {
+                return Transform.rotate(
+                  angle: animationController.value * 6.3,
+                  child: _widget,
+                );
+              },
+              child: Image.asset(
+                Images.tapeReel,
+                fit: BoxFit.fill,
+                width: size - padding,
+                height: size - padding,
+              ),
             ),
           ),
         ],

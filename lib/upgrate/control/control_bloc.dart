@@ -7,7 +7,7 @@ import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/song.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
 
-class ControlBloc extends BlocBase {
+class ControlBloc extends BlocBase implements AudioCallback {
   TapeBloc tapeBloc;
   SongProvider songProvider;
 
@@ -21,7 +21,7 @@ class ControlBloc extends BlocBase {
   ControlBloc(TapeBloc tapeBloc) {
     this.tapeBloc = tapeBloc;
 
-    audioControl = new AudioControl();
+    audioControl = new AudioControl(this);
     songProvider = new SongProvider();
     equalizer = new Equalizer(
       bass: Const.bass.def,
@@ -198,6 +198,11 @@ class ControlBloc extends BlocBase {
       // TODO : mở ra cái chọn bài
     }
   }
+
+  @override
+  updateDuration(int percent) {
+    tapeBloc.setPercent(percent);
+  }
 }
 
 class Equalizer {
@@ -271,7 +276,9 @@ class ButtonState {
 }
 
 enum AudioState { prepare, play, resume, pause, stop }
-
+class AudioCallback {
+  updateDuration(int percent) {}
+}
 class AudioControl {
   AudioPlayer audioPlayer = AudioPlayer();
   StreamSubscription complete;
@@ -279,10 +286,15 @@ class AudioControl {
   StreamSubscription duration;
   Duration audiDuration;
   AudioState state;
+  AudioCallback callback;
+  int currentPercent;
 
-  AudioControl() {
+  AudioControl(AudioCallback callback) {
+    this.callback = callback;
+
     AudioPlayer.logEnabled = Const.isLog;
     state = AudioState.prepare;
+    currentPercent = 0;
 
     audioPlayer = AudioPlayer(
       playerId: 'audio',
@@ -299,9 +311,15 @@ class AudioControl {
     error = audioPlayer.onPlayerError.listen((msg) {
       print('AudioControl error $msg');
     });
-    duration = audioPlayer.onAudioPositionChanged.listen((event) {
+    duration = audioPlayer.onAudioPositionChanged.listen((event) async {
       print('AudioControl duration change $event');
       audiDuration = event;
+      final total = await audioPlayer.getDuration();
+      final percent = (audiDuration.inMilliseconds / total * 100).toInt();
+      if(currentPercent != percent) {
+        currentPercent = percent;
+      }
+      callback.updateDuration(currentPercent);
     });
   }
 

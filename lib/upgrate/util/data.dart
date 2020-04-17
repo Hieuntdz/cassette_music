@@ -46,6 +46,7 @@ class Images {
   static final tapeLabel2 = '$root/tape_label_2.png';
   static final tapeReelBorder = '$root/tape_reel_border.png';
   static final tapeReel = '$root/tape_reel.png';
+  static final tapeContent = '$root/tape_content.png';
 
   static final controlBackground = '$root/control_background.png';
   static final controlButton = '$root/control_button.png';
