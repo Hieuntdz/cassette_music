@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   StreamSubscription playerCompleteSubscription;
   StreamSubscription playerErrorSubscription;
   StreamSubscription playerDurationSubscription;
-  Duration audiDuration;
+  Duration audioDuration;
 
   AudioModel currentAudio;
   List<AudioModel> listAudioModel = new List();
@@ -68,9 +68,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   ui.Image image;
   int currentAudioPos = 0;
   int totalAudio = 0;
-
   double screenWith;
   double screenHeight;
+
+  double totalTime = 0; // de lam cai bang chet tiet
+  double currentTime = 0;
+  double oldTime = 0; // gia trị tạm để lưu curent time;
 
   //state
   String icPauseUrl = "assets/images/ic_pause.png";
@@ -99,6 +102,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       listAudioModel = arrJson.map((tagJson) => AudioModel.fromJson(tagJson)).toList();
       listAudioModelContent.addAll(listAudioModel);
       totalAudio = listAudioModelContent.length;
+
+      totalTime = 0;
+      currentTime = 0;
+      for (AudioModel audioModel in listAudioModelContent) {
+        totalTime += audioModel.duartion;
+      }
+      setState(() {
+        currentTime = 0;
+        totalTime = totalTime;
+      });
     } on PlatformException catch (e) {}
   }
 
@@ -116,7 +129,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
     playerDurationSubscription = audioPlayer.onAudioPositionChanged.listen((event) {
       print("MMMMMMMMMMMMMMMMMMM $event");
-      audiDuration = event;
+      audioDuration = event;
+      setState(() {
+        currentTime = oldTime + event.inMilliseconds;
+      });
     });
 
     final ByteData data = await rootBundle.load('assets/images/ic_thumb.png');
@@ -213,9 +229,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       if (currentAudio != null) {
         if (appState == AppState.PLAYING) {
           audioPlayer.play(currentAudio.path,
-              isLocal: true, position: Duration(milliseconds: time + audiDuration.inMilliseconds));
+              isLocal: true, position: Duration(milliseconds: time + audioDuration.inMilliseconds));
         } else {
-          audioPlayer.seek(Duration(milliseconds: time + audiDuration.inMilliseconds));
+          audioPlayer.seek(Duration(milliseconds: time + audioDuration.inMilliseconds));
         }
       }
     } else if (type == ControllerType.BACK) {
@@ -226,9 +242,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       if (currentAudio != null) {
         if (appState == AppState.PLAYING) {
           audioPlayer.play(currentAudio.path,
-              isLocal: true, position: Duration(milliseconds: audiDuration.inMilliseconds - time));
+              isLocal: true, position: Duration(milliseconds: audioDuration.inMilliseconds - time));
         } else {
-          audioPlayer.seek(Duration(milliseconds: audiDuration.inMilliseconds - time));
+          audioPlayer.seek(Duration(milliseconds: audioDuration.inMilliseconds - time));
         }
       }
     }
@@ -304,6 +320,15 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       listAudioModelContent.clear();
       listAudioModelContent.addAll(listAudioModel);
       currentAudioPos = pos;
+      totalTime = 0;
+      currentTime = 0;
+      for (int i = 0; i < listAudioModelContent.length; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        totalTime += audioModel.duartion;
+        if (i <= currentAudioPos) {
+          currentTime += audioModel.duartion;
+        }
+      }
     } else if (type.isNotEmpty && type == MenuScreen.ARTIST) {
       listAudioModelContent.clear();
       currentAudioPos = 0;
@@ -312,6 +337,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           listAudioModelContent.add(audioModel);
         }
       }
+
+      totalTime = 0;
+      currentTime = 0;
+      for (int i = 0; i < listAudioModelContent.length; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        totalTime += audioModel.duartion;
+      }
     } else if (type.isNotEmpty && type == MenuScreen.FOLDER) {
       listAudioModelContent.clear();
       currentAudioPos = 0;
@@ -319,6 +351,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         if (audioModel.folder == value) {
           listAudioModelContent.add(audioModel);
         }
+      }
+
+      totalTime = 0;
+      currentTime = 0;
+      for (int i = 0; i < listAudioModelContent.length; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        totalTime += audioModel.duartion;
       }
     }
     if (listAudioModelContent.length > currentAudioPos) {
@@ -329,7 +368,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     appState = AppState.PAUSING;
     audioPlayer.stop();
     stopPlayRotation();
+
+    oldTime = currentTime;
     setState(() {
+      currentTime = currentTime;
+      totalTime = totalTime;
       icPlayUrl = "assets/images/ic_play.png";
       icPauseUrl = "assets/images/ic_pause.png";
       audioName = audioName;
@@ -504,7 +547,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                                                             child: Container(
                                                               margin:
                                                                   EdgeInsets.only(left: 2, right: 2, top: 5, bottom: 5),
-                                                              child: WidgetIce(currentAudioPos, totalAudio),
+                                                              child: WidgetIce(currentTime, totalTime),
                                                             ),
                                                           ),
                                                           Expanded(
@@ -708,9 +751,17 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     stopPlayRotation();
 
     if (listAudioModelContent.length > currentAudioPos) {
+      currentTime = 0;
+      for (int i = 0; i < currentAudioPos; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        currentTime += audioModel.duartion;
+      }
       AudioModel audioModel = listAudioModelContent.elementAt(currentAudioPos);
       currentAudio = audioModel;
+
+      oldTime = currentTime;
       setState(() {
+        currentTime = currentTime;
         audioName = audioModel.name;
         audioFolder = audioModel.folder;
       });
@@ -737,9 +788,18 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     stopPlayRotation();
 
     if (listAudioModelContent.length > currentAudioPos && currentAudioPos >= 0) {
+      currentTime = 0;
+      for (int i = 0; i < currentAudioPos; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        currentTime += audioModel.duartion;
+      }
+
       AudioModel audioModel = listAudioModelContent.elementAt(currentAudioPos);
       currentAudio = audioModel;
+
+      oldTime = currentTime;
       setState(() {
+        currentTime = currentTime;
         audioName = audioModel.name;
         audioFolder = audioModel.folder;
       });
