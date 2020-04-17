@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cassettemusic/orign/audioplayer/audioplayers.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/song.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
+import 'package:flutter/animation.dart';
 
 class ControlBloc extends BlocBase implements AudioCallback {
   TapeBloc tapeBloc;
@@ -36,6 +36,10 @@ class ControlBloc extends BlocBase implements AudioCallback {
     pause = ButtonState(3, Images.pause, true);
     stop = ButtonState(4, Images.stop, false);
     eject = ButtonState(5, Images.eject, false);
+  }
+
+  setAnimationController(AnimationController animationController) {
+    audioControl.setAnimationController(animationController);
   }
 
   @override
@@ -287,6 +291,7 @@ class AudioControl {
   Duration audiDuration;
   AudioState state;
   AudioCallback callback;
+  AnimationController animationController;
   int currentPercent;
 
   AudioControl(AudioCallback callback) {
@@ -323,9 +328,14 @@ class AudioControl {
     });
   }
 
+  setAnimationController(AnimationController animationController) {
+    this.animationController = animationController;
+  }
+
   play(String path) async {
     print('AudioControl play');
     state = AudioState.play;
+    if(animationController != null) animationController.repeat();
     if (audioPlayer.isLocalUrl(path)) {
       return await audioPlayer.play(path, isLocal: true);
     } else {
@@ -336,23 +346,27 @@ class AudioControl {
   resume() async {
     print('AudioControl resume');
     state = AudioState.resume;
+    if(animationController != null) animationController.repeat();
     return await audioPlayer.resume();
   }
 
   pause() async {
     print('AudioControl pause');
     state = AudioState.pause;
+    if(animationController != null)  animationController.stop();
     return await audioPlayer.pause();
   }
 
   stop() async {
     print('AudioControl stop');
     state = AudioState.stop;
+    if(animationController != null)  animationController.stop();
     return await audioPlayer.stop();
   }
 
   dispose() {
     print('AudioControl dispose');
+    if(animationController != null)  animationController.stop();
     if (complete != null) complete.cancel();
     if (error != null) error.cancel();
     if (duration != null) duration.cancel();

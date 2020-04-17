@@ -1,5 +1,6 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cassettemusic/orign/WidgetIce.dart';
+import 'package:cassettemusic/upgrate/control/control_bloc.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
 import 'package:cassettemusic/upgrate/ui/widget/line.dart';
@@ -23,6 +24,8 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: new Duration(seconds: 3),
     );
+    ControlBloc controlBloc = BlocProvider.getBloc<ControlBloc>();
+    controlBloc.setAnimationController(animationController);
   }
 
   @override
