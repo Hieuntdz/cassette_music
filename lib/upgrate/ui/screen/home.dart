@@ -1,8 +1,9 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
-import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
+import 'package:cassettemusic/upgrate/model/app.dart';
 import 'package:cassettemusic/upgrate/ui/widget/control.dart';
 import 'package:cassettemusic/upgrate/ui/widget/tape.dart';
+import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,13 +16,13 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ControlBloc controlBloc = BlocProvider.getBloc<ControlBloc>();
+      controlBloc.setContext(context);
       controlBloc.getSongs();
     });
   }
@@ -37,11 +38,13 @@ class _MyHomePageState extends State<MyHomePage>
       statusBarColor: Colors.transparent,
     ));
 
+    var appSummary = AppSummary(context);
+
     return Scaffold(
       body: Stack(
         children: <Widget>[
           Container(
-            color: Colors.grey,
+            color: Colors.black,
           ),
           Center(
             child: Tape(),
@@ -50,6 +53,14 @@ class _MyHomePageState extends State<MyHomePage>
             alignment: Alignment.bottomCenter,
             child: Control(),
           ),
+          Container(
+            width: double.infinity,
+            height: appSummary.screenHeight * Const.bgMoRatio,
+            child: Image.asset(
+              "assets/images/bg_mo.png",
+              fit: BoxFit.fill,
+            ),
+          )
         ],
       ),
 //      floatingActionButton: FloatingActionButton(

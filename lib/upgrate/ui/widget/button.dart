@@ -35,14 +35,15 @@ class CButtonState extends State<CButton> {
         },
         onTapUp: (details) {
           print('onTapUp');
-          widget.bloc.tapCancel(widget.state, false);
+          widget.bloc.tapCancel(widget.state, false, DateTime.now().millisecondsSinceEpoch);
         },
         onLongPressStart: (details) {
           print('onLongPressStart');
+          widget.bloc.setTimeLongPressStart(DateTime.now().millisecondsSinceEpoch);
         },
         onLongPressEnd: (details) {
           print('onLongPressEnd');
-          widget.bloc.tapCancel(widget.state, true);
+          widget.bloc.tapCancel(widget.state, true, DateTime.now().millisecondsSinceEpoch);
         },
         onLongPress: () {},
         child: Stack(

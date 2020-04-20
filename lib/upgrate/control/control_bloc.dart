@@ -2,21 +2,31 @@ import 'dart:async';
 
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cassettemusic/orign/audioplayer/audioplayers.dart';
+import 'package:cassettemusic/orign/model/AudioModel.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/song.dart';
+import 'package:cassettemusic/upgrate/ui/screen/menu.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/animation.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class ControlBloc extends BlocBase implements AudioCallback {
+  BuildContext context;
   TapeBloc tapeBloc;
   SongProvider songProvider;
 
   AudioControl audioControl;
   Equalizer equalizer;
-  List<Song> songs;
+  List<AudioModel> listAudioModel = new List();
+  List<AudioModel> listAudioModelContent = new List();
   int currentIndex;
-
+  int timeLongPressStart;
   ButtonState rewind, play, forward, pause, stop, eject;
+  EqualizerState bassControll, trebbleControll;
+
+  double totalTime = 0; // tong time list nhac
+  double currentTime = 0; // time hien tai da play dc
 
   ControlBloc(TapeBloc tapeBloc) {
     this.tapeBloc = tapeBloc;
@@ -28,7 +38,8 @@ class ControlBloc extends BlocBase implements AudioCallback {
       treble: Const.treble.def,
       volume: Const.volume.def,
     );
-    songs = new List();
+    listAudioModel = new List();
+    listAudioModelContent = new List();
 
     rewind = ButtonState(0, Images.rewind, false);
     play = ButtonState(1, Images.play, true);
@@ -36,6 +47,13 @@ class ControlBloc extends BlocBase implements AudioCallback {
     pause = ButtonState(3, Images.pause, true);
     stop = ButtonState(4, Images.stop, false);
     eject = ButtonState(5, Images.eject, false);
+
+    bassControll = EqualizerState(0, "B", equalizer.bass);
+    trebbleControll = EqualizerState(1, "T", equalizer.treble);
+  }
+
+  void setContext(BuildContext context) {
+    this.context = context;
   }
 
   setAnimationController(AnimationController animationController) {
@@ -48,22 +66,39 @@ class ControlBloc extends BlocBase implements AudioCallback {
     audioControl.dispose();
   }
 
+  void setTimeLongPressStart(int time) {
+    audioControl.audioPlayer.pause();
+    timeLongPressStart = time;
+  }
+
   void setBass(double value) {
+    audioControl.setBass(value);
     equalizer.bass = value;
     equalizer.verify();
     notifyListeners();
   }
 
   void setTreble(double value) {
+    audioControl.setTrebble(value);
+
     equalizer.treble = value;
     equalizer.verify();
     notifyListeners();
   }
 
+  void onEqualizerChange(EqualizerState state, double value) {
+    state.progress = value;
+    if (state == bassControll) {
+      setBass(value);
+    } else {
+      setTreble(value);
+    }
+  }
+
   void setVolume(double value) {
-    equalizer.treble = value;
+    equalizer.volume = value;
     equalizer.verify();
-    notifyListeners();
+    audioControl.setVolume(value);
   }
 
   void increaseVolume(int value) {
@@ -78,53 +113,108 @@ class ControlBloc extends BlocBase implements AudioCallback {
     notifyListeners();
   }
 
-  setSongs(List<Song> value) {
-    songs.clear();
-    songs.addAll(value);
+  setSongs(List<AudioModel> value) {
+    listAudioModelContent.clear();
+    listAudioModelContent.addAll(value);
     notifyListeners();
   }
 
-  addSong(Song value) {
-    songs.add(value);
+  addSong(AudioModel value) {
+    listAudioModelContent.add(value);
     notifyListeners();
   }
 
   getSongs() async {
-    songs = await songProvider.getSong();
+    listAudioModel = await songProvider.getSongByBrideNative();
+    listAudioModelContent.addAll(listAudioModel);
     currentIndex = 0;
-    if (songs != null && songs.length > 0) {
-      tapeBloc.setSong(songs[currentIndex]);
+    if (listAudioModelContent != null && listAudioModelContent.length > 0) {
+      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
     }
+    for (AudioModel audioModel in listAudioModelContent) {
+      totalTime += audioModel.duartion;
+    }
+    tapeBloc.setCurentTime(0, totalTime);
     notifyListeners();
   }
 
   getPreviousSong() {
+//    currentIndex--;
+//    if (currentIndex < 0) {
+//      currentIndex = 0;
+//    }
+//    if (listAudioModelContent != null && listAudioModelContent.length > 0) {
+//      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
+//    }
+//    notifyListeners();
+
     currentIndex--;
+    if (currentIndex < 0) {
+      currentIndex = listAudioModelContent.length - 1;
+    }
+    //TH ko co bai nao
     if (currentIndex < 0) {
       currentIndex = 0;
     }
-    if (songs != null && songs.length > 0) {
-      tapeBloc.setSong(songs[currentIndex]);
+
+    if (listAudioModelContent.length > currentIndex && currentIndex >= 0) {
+      currentTime = 0;
+      for (int i = 0; i < currentIndex; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        currentTime += audioModel.duartion;
+      }
+      tapeBloc.setCurentTime(currentTime, totalTime);
+      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
     }
     notifyListeners();
   }
 
   getNextSong() {
+//    currentIndex++;
+//    if (currentIndex > listAudioModelContent.length - 1) {
+//      currentIndex = listAudioModelContent.length - 1;
+//    }
+//    if (listAudioModelContent != null && listAudioModelContent.length > 0) {
+//      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
+//    }
+//    notifyListeners();
+
     currentIndex++;
-    if (currentIndex > songs.length - 1) {
-      currentIndex = songs.length - 1;
+    if (currentIndex >= listAudioModelContent.length) {
+      currentIndex = 0;
     }
-    if (songs != null && songs.length > 0) {
-      tapeBloc.setSong(songs[currentIndex]);
+
+    if (listAudioModelContent.length > currentIndex) {
+      currentTime = 0;
+      for (int i = 0; i < currentIndex; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        currentTime += audioModel.duartion;
+      }
+      tapeBloc.setCurentTime(currentTime, totalTime);
+      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
     }
+
     notifyListeners();
   }
 
-  longPress(ButtonState state) {
+  longPress(ButtonState state, int duration) {
+    if (tapeBloc.audioModel == null) {
+      return;
+    }
     if (state == rewind) {
-      // TODO Tua bài như nào thì tua
+      if (audioControl.state == AudioState.play) {
+        audioControl.playFromDuration(
+            tapeBloc.audioModel.path, Duration(milliseconds: audioControl.audioDuration.inMilliseconds - duration));
+      } else {
+        audioControl.seek(Duration(milliseconds: audioControl.audioDuration.inMilliseconds - duration));
+      }
     } else if (state == forward) {
-      // TODO Tua bài như nào thì tua
+      if (audioControl.state == AudioState.play) {
+        audioControl.playFromDuration(
+            tapeBloc.audioModel.path, Duration(milliseconds: audioControl.audioDuration.inMilliseconds + duration));
+      } else {
+        audioControl.seek(Duration(milliseconds: audioControl.audioDuration.inMilliseconds + duration));
+      }
     } else {
       // Những thằng nào quan tâm thì thêm vào
     }
@@ -132,12 +222,9 @@ class ControlBloc extends BlocBase implements AudioCallback {
 
   tapButton(ButtonState state) {
     if (state == play && audioControl.state == AudioState.pause) {
-      // Trường hợp ấn play khi pause đang ấn
-      play.press();
+      // Trường hợp ấn play khi pause đang ấn      play.press();
       pause.nonPress();
-    } else if (state == play &&
-        (audioControl.state == AudioState.play ||
-            audioControl.state == AudioState.resume)) {
+    } else if (state == play && (audioControl.state == AudioState.play || audioControl.state == AudioState.resume)) {
       // chả làm gì cả, tắt thế đéo nào được, pause với stop chứ
     } else {
       state.trigger();
@@ -145,7 +232,7 @@ class ControlBloc extends BlocBase implements AudioCallback {
     notifyListeners();
   }
 
-  tapCancel(ButtonState state, bool isLongPress) {
+  tapCancel(ButtonState state, bool isLongPress, int time) {
     if (state == pause &&
         (audioControl.state == AudioState.prepare ||
             audioControl.state == AudioState.pause ||
@@ -167,23 +254,28 @@ class ControlBloc extends BlocBase implements AudioCallback {
 
     if (state == rewind) {
       if (isLongPress) {
-        // TODO kill cái gì khi tạo trong long press
+        longPress(state, time - timeLongPressStart);
       } else {
-        // TODO kill cái gì thì tạo trong tap
+        getPreviousSong();
+        if (tapeBloc.audioModel != null && audioControl.state == AudioState.play) {
+          audioControl.play(tapeBloc.audioModel.path);
+        }
       }
     } else if (state == forward) {
       if (isLongPress) {
-        // TODO kill cái gì khi tạo trong long press
+        longPress(state, time - timeLongPressStart);
       } else {
-        // TODO kill cái gì thì tạo trong tap
+        getNextSong();
+        if (tapeBloc.audioModel != null && audioControl.state == AudioState.play) {
+          audioControl.play(tapeBloc.audioModel.path);
+        }
       }
     } else if (state == play) {
       if (audioControl.state == AudioState.pause) {
         audioControl.resume();
-      } else if (audioControl.state == AudioState.prepare ||
-          audioControl.state == AudioState.stop) {
-        if (tapeBloc.song != null) {
-          audioControl.play(tapeBloc.song.path);
+      } else if (audioControl.state == AudioState.prepare || audioControl.state == AudioState.stop) {
+        if (tapeBloc.audioModel != null) {
+          audioControl.play(tapeBloc.audioModel.path);
         } else {
           print('Error song ?');
         }
@@ -199,13 +291,81 @@ class ControlBloc extends BlocBase implements AudioCallback {
       // Stop trên casset bản chất chỉ là pause
       audioControl.pause();
     } else if (state == eject) {
-      // TODO : mở ra cái chọn bài
+      navigateToMenuScreen(context);
     }
   }
 
+  Future navigateToMenuScreen(context) async {
+    Map result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MyMenuScreen(
+                  listAudioModel: listAudioModel,
+                )));
+
+//    if (result == null) {
+//      return;
+//    }
+//
+//    String type = result[MenuScreen.KEY_TYPE];
+//    int pos = result[MenuScreen.KEY_POS];
+//    String value = result[MenuScreen.KEY_VALUE];
+//    if (type.isNotEmpty && type == MenuScreen.DANH_SACH) {
+//      listAudioModelContent.clear();
+//      listAudioModelContent.addAll(listAudioModel);
+//      currentIndex = pos;
+//      totalTime = 0;
+//      currentTime = 0;
+//      for (int i = 0; i < listAudioModelContent.length; i++) {
+//        AudioModel audioModel = listAudioModelContent[i];
+//        totalTime += audioModel.duartion;
+//        if (i <= currentIndex) {
+//          currentTime += audioModel.duartion;
+//        }
+//      }
+//    } else if (type.isNotEmpty && type == MenuScreen.ARTIST) {
+//      listAudioModelContent.clear();
+//      currentIndex = 0;
+//      for (AudioModel audioModel in listAudioModel) {
+//        if (audioModel.artist == value) {
+//          listAudioModelContent.add(audioModel);
+//        }
+//      }
+//
+//      totalTime = 0;
+//      currentTime = 0;
+//      for (int i = 0; i < listAudioModelContent.length; i++) {
+//        AudioModel audioModel = listAudioModelContent[i];
+//        totalTime += audioModel.duartion;
+//      }
+//    } else if (type.isNotEmpty && type == MenuScreen.FOLDER) {
+//      listAudioModelContent.clear();
+//      currentIndex = 0;
+//      for (AudioModel audioModel in listAudioModel) {
+//        if (audioModel.folder == value) {
+//          listAudioModelContent.add(audioModel);
+//        }
+//      }
+//
+//      totalTime = 0;
+//      currentTime = 0;
+//      for (int i = 0; i < listAudioModelContent.length; i++) {
+//        AudioModel audioModel = listAudioModelContent[i];
+//        totalTime += audioModel.duartion;
+//      }
+//    }
+//    if (listAudioModelContent.length > currentIndex) {
+//      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
+//      tapeBloc.setCurentTime(currentTime, totalTime);
+//    }
+
+    notifyListeners();
+  }
+
   @override
-  updateDuration(int percent) {
-    tapeBloc.setPercent(percent);
+  onDurationChange(int duration) {
+    tapeBloc.setCurentTime(currentTime + duration, totalTime);
+    notifyListeners();
   }
 }
 
@@ -233,6 +393,14 @@ class Equalizer {
       treble = Const.treble.min;
     else if (treble > Const.treble.max) treble = Const.treble.max;
   }
+}
+
+class EqualizerState {
+  int id;
+  String text;
+  double progress;
+
+  EqualizerState(this.id, this.text, this.progress);
 }
 
 class ButtonState {
@@ -280,15 +448,17 @@ class ButtonState {
 }
 
 enum AudioState { prepare, play, resume, pause, stop }
+
 class AudioCallback {
-  updateDuration(int percent) {}
+  onDurationChange(int percent) {}
 }
+
 class AudioControl {
   AudioPlayer audioPlayer = AudioPlayer();
   StreamSubscription complete;
   StreamSubscription error;
   StreamSubscription duration;
-  Duration audiDuration;
+  Duration audioDuration;
   AudioState state;
   AudioCallback callback;
   AnimationController animationController;
@@ -318,13 +488,13 @@ class AudioControl {
     });
     duration = audioPlayer.onAudioPositionChanged.listen((event) async {
       print('AudioControl duration change $event');
-      audiDuration = event;
+      audioDuration = event;
       final total = await audioPlayer.getDuration();
-      final percent = (audiDuration.inMilliseconds / total * 100).toInt();
-      if(currentPercent != percent) {
+      final percent = (audioDuration.inMilliseconds / total * 100).toInt();
+      if (currentPercent != percent) {
         currentPercent = percent;
+        callback.onDurationChange(audioDuration.inMilliseconds);
       }
-      callback.updateDuration(currentPercent);
     });
   }
 
@@ -332,10 +502,21 @@ class AudioControl {
     this.animationController = animationController;
   }
 
+  playFromDuration(String path, Duration duration) async {
+    print('AudioControl play');
+    state = AudioState.play;
+    if (animationController != null) animationController.repeat();
+    if (audioPlayer.isLocalUrl(path)) {
+      return await audioPlayer.play(path, isLocal: true, position: duration);
+    } else {
+      return await audioPlayer.play(path, isLocal: false, position: duration);
+    }
+  }
+
   play(String path) async {
     print('AudioControl play');
     state = AudioState.play;
-    if(animationController != null) animationController.repeat();
+    if (animationController != null) animationController.repeat();
     if (audioPlayer.isLocalUrl(path)) {
       return await audioPlayer.play(path, isLocal: true);
     } else {
@@ -343,30 +524,46 @@ class AudioControl {
     }
   }
 
+  seek(Duration duration) {
+    audioPlayer.seek(duration);
+  }
+
   resume() async {
     print('AudioControl resume');
     state = AudioState.resume;
-    if(animationController != null) animationController.repeat();
+    if (animationController != null) animationController.repeat();
     return await audioPlayer.resume();
   }
 
   pause() async {
     print('AudioControl pause');
     state = AudioState.pause;
-    if(animationController != null)  animationController.stop();
+    if (animationController != null) animationController.stop();
     return await audioPlayer.pause();
   }
 
   stop() async {
     print('AudioControl stop');
     state = AudioState.stop;
-    if(animationController != null)  animationController.stop();
+    if (animationController != null) animationController.stop();
     return await audioPlayer.stop();
+  }
+
+  void setBass(double bass) {
+    audioPlayer.setBass(bass / Const.bass.max);
+  }
+
+  void setTrebble(double trebble) {
+    audioPlayer.setBass(trebble / Const.treble.max);
+  }
+
+  void setVolume(double volume) {
+    audioPlayer.setVolume(volume);
   }
 
   dispose() {
     print('AudioControl dispose');
-    if(animationController != null)  animationController.stop();
+    if (animationController != null) animationController.stop();
     if (complete != null) complete.cancel();
     if (error != null) error.cancel();
     if (duration != null) duration.cancel();

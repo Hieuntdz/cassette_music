@@ -1,12 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:path/path.dart' as path;
+import 'package:cassettemusic/orign/model/AudioModel.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_file_manager/flutter_file_manager.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SongProvider {
+  static const platform = const MethodChannel('CHANNEL_GET_AUDIO_LIST');
+
   Future<List<Song>> getSong() async {
     final data = await getSongByFlutter();
     List<Song> songs = new List();
@@ -52,8 +57,15 @@ class SongProvider {
     return null;
   }
 
-  Future<List> getSongByBrideNative() {
-    return null;
+  Future<List> getSongByBrideNative() async {
+    List<AudioModel> listAudioModel = new List();
+    try {
+      String result = await platform.invokeMethod('getAudioList');
+      var arrJson = jsonDecode(result) as List;
+      List<AudioModel> listSong = arrJson.map((tagJson) => AudioModel.fromJson(tagJson)).toList();
+      listAudioModel.addAll(listSong);
+      return listSong;
+    } on PlatformException catch (e) {}
   }
 }
 

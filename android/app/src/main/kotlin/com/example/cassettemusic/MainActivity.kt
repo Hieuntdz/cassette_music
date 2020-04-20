@@ -1,6 +1,7 @@
 package com.example.cassettemusic
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.media.MediaMetadataRetriever
 import android.os.Build
@@ -63,6 +64,7 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    @SuppressLint("NewApi")
     private fun getPlayList(rootPath: String?) {
         Log.d(TAG, "getPlayList")
         try {

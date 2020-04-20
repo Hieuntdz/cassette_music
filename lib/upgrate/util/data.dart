@@ -4,7 +4,10 @@ class Const {
   static final tapeRatio = 1120 / 708;
   static final tapeContentRatio = 900 / 485;
   static final tapeContentWithTapeRatio = 0.65;
-  static final tapeContentLabelRatio = 60 / 620;
+  static final tapeContentLabelRatio = 60 / 720;
+  static final tapeAnimRatio = 194 / 720;
+  static final tapeAnimOwerRatio = 194 / 657;
+  static final bgMoRatio = 100 / 720;
 
   static final controlHeight = 0.17;
   static final SoundData volume = SoundData(
@@ -30,6 +33,9 @@ class Const {
   static final songDesTextSize = 16.0;
   static final songDesLabel = 'Location';
 
+  static final String TREBLE = "TREBLE";
+  static final String BASS = "BASS";
+
   static final filter = [
     'mp3',
     'mp4',
@@ -47,6 +53,8 @@ class Images {
   static final tapeReelBorder = '$root/tape_reel_border.png';
   static final tapeReel = '$root/tape_reel.png';
   static final tapeContent = '$root/tape_content.png';
+  static final tapeSubBackground = '$root/tape_sub_background.png';
+  static final tapeParentBackground = '$root/tape_parent_background.png';
 
   static final controlBackground = '$root/control_background.png';
   static final controlButton = '$root/control_button.png';
