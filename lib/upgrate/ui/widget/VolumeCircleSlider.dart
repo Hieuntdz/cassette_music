@@ -87,15 +87,15 @@ class VolumeCircleSliderState extends State<VolumeCircleSlider> {
   @override
   Widget build(BuildContext context) {
     buildTimes = buildTimes + 1;
-    if (buildTimes == 3) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
-    }
+//    if (buildTimes == 5) {
+//      WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
+//    }
 
     return OrientationBuilder(builder: (context, orientation) {
       print(TAG + " build $orientation");
       if (orientation == Orientation.landscape && mOrientation == Orientation.portrait) {
         mOrientation = orientation;
-//        WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
+        WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
       }
       return Container(
           key: keyVolume,

@@ -197,6 +197,7 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
   tapButton(ButtonState state) {
     if (state == play && audioControl.state == AudioState.pause) {
       // Trường hợp ấn play khi pause đang ấn      play.press();
+      play.press();
       pause.nonPress();
     } else if (state == play && (audioControl.state == AudioState.play || audioControl.state == AudioState.resume)) {
       // chả làm gì cả, tắt thế đéo nào được, pause với stop chứ
@@ -207,13 +208,7 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
   }
 
   tapCancel(ButtonState state, bool isLongPress, int time) {
-    if (state == pause &&
-        (audioControl.state == AudioState.prepare ||
-            audioControl.state == AudioState.pause ||
-            audioControl.state == AudioState.stop)) {
-      // Trường hợp ấn pause khi play không được ấn
-      state.nonPress();
-    } else if (state == stop) {
+    if (state == stop) {
       // Trường hợp ấn stop
       rewind.nonPress();
       play.nonPress();
@@ -221,7 +216,7 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
       pause.nonPress();
       stop.nonPress();
       eject.nonPress();
-    } else {
+    } else if (state == rewind || state == forward) {
       state.cancel();
     }
 
@@ -246,19 +241,19 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
         }
       }
     } else if (state == play) {
-      if (audioControl.state == AudioState.pause) {
-        audioControl.resume();
-      } else if (audioControl.state == AudioState.prepare || audioControl.state == AudioState.stop) {
-        if (tapeBloc.audioModel != null) {
-          audioControl.play(tapeBloc.audioModel.path);
-        } else {
-          print('Error song ?');
-        }
+//      if (audioControl.state == AudioState.pause) {
+//        audioControl.resume();
+//      } else if (audioControl.state == AudioState.prepare || audioControl.state == AudioState.stop) {
+      if (tapeBloc.audioModel != null) {
+        audioControl.play(tapeBloc.audioModel.path);
+      } else {
+        print('Error song ?');
       }
+//      }
     } else if (state == pause) {
       if (state.isPressed) {
         audioControl.pause();
-      } else {
+      } else if (audioControl.state == AudioState.pause) {
         audioControl.resume();
       }
     } else if (state == stop) {
@@ -277,6 +272,9 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
             builder: (context) => MenuScreen(
                   listAudioModel: listAudioModel,
                 )));
+
+    eject.nonPress();
+    update();
 
     if (result == null) {
       return;
@@ -334,7 +332,7 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
       tapeBloc.setCurentTime(currentTime, totalTime);
     }
 
-    add(ControllEvent());
+    tapCancel(stop, false, 0);
   }
 
   @override
@@ -479,13 +477,14 @@ class AudioControl {
   }
 
   playFromDuration(String path, Duration duration) async {
-    print('AudioControl play');
+    print('playFromDuration play');
     state = AudioState.play;
     if (animationController != null) animationController.repeat();
     if (audioPlayer.isLocalUrl(path)) {
-      return await audioPlayer.play(path, isLocal: true, position: duration);
+      int result = await audioPlayer.play(path, isLocal: true, position: duration);
+      print("playFromDuration result : $result");
     } else {
-      return await audioPlayer.play(path, isLocal: false, position: duration);
+      await audioPlayer.play(path, isLocal: false, position: duration);
     }
   }
 

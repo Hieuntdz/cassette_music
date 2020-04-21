@@ -60,7 +60,7 @@ class Images {
   static final controlButton = '$root/control_button.png';
   static final controlButtonPressed = '$root/control_button_pressed.png';
   static final ButtonData play = ButtonData(
-    icon: '$root/ic_play_blue.png',
+    icon: '$root/ic_play_black.png',
     iconPressed: '$root/ic_play_blue.png',
   );
   static final ButtonData pause = ButtonData(
