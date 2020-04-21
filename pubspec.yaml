@@ -21,8 +21,9 @@ dependencies:
     sdk: flutter
 
   # https://pub.dev/packages/bloc_pattern#-installing-tab-
-  bloc_pattern: ^2.5.1
-
+  bloc: ^3.0.0
+  equatable: ^1.0.0
+  flutter_bloc: ^3.2.0
   flutter_file_manager: ^0.2.0
   path: 1.6.4
   path_provider: ^1.6.5

@@ -1,12 +1,13 @@
-import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cassettemusic/orign/WidgetIce.dart';
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
+import 'package:cassettemusic/upgrate/control/tabe_bloc_state.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
 import 'package:cassettemusic/upgrate/ui/widget/line.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Tape extends StatefulWidget {
   @override
@@ -24,7 +25,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: new Duration(seconds: 3),
     );
-    ControlBloc controlBloc = BlocProvider.getBloc<ControlBloc>();
+    ControlBloc controlBloc = BlocProvider.of<ControlBloc>(context);
     controlBloc.setAnimationController(animationController);
   }
 
@@ -60,11 +61,12 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
   }
 
   Widget initContent(double h) {
+    print("TapeBlocState initContent");
     if (h <= 0) return Container();
-
     final height = h * Const.tapeContentWithTapeRatio;
     final width = height * Const.tapeContentRatio;
 
+    TapeBloc tapeBloc = BlocProvider.of<TapeBloc>(context);
     return Stack(
       children: <Widget>[
         Container(
@@ -93,11 +95,11 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(5),
                   ),
                   padding: EdgeInsets.all(6),
-                  child: Consumer<TapeBloc>(
+                  child: BlocBuilder<TapeBloc, TapeBlocState>(
                     builder: (context, value) {
                       return Column(
                         children: <Widget>[
-                          initSongName(value),
+                          initSongName(tapeBloc),
                           Container(
                             padding: EdgeInsets.only(
                               left: 4,
@@ -106,7 +108,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
                             ),
                             child: VerticalLine("#E8D0A4", 4),
                           ),
-                          initSongDes(value),
+                          initSongDes(tapeBloc),
                           Container(
                             padding: EdgeInsets.only(
                               left: 4,
@@ -118,7 +120,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
                           SizedBox(
                             height: 12,
                           ),
-                          initAnim(value),
+                          initAnim(tapeBloc),
                           SizedBox(
                             height: 12,
                           ),

@@ -1,17 +1,20 @@
 import 'dart:async';
 
-import 'package:bloc_pattern/bloc_pattern.dart';
+import 'package:cassettemusic/orign/MenuScreen.dart';
 import 'package:cassettemusic/orign/audioplayer/audioplayers.dart';
 import 'package:cassettemusic/orign/model/AudioModel.dart';
+import 'package:cassettemusic/upgrate/control/ControllState.dart';
+import 'package:cassettemusic/upgrate/control/bloc_update.dart';
+import 'package:cassettemusic/upgrate/control/control_event.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/song.dart';
-import 'package:cassettemusic/upgrate/ui/screen/menu.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ControlBloc extends BlocBase implements AudioCallback {
+class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements AudioCallback {
   BuildContext context;
   TapeBloc tapeBloc;
   SongProvider songProvider;
@@ -52,6 +55,18 @@ class ControlBloc extends BlocBase implements AudioCallback {
     trebbleControll = EqualizerState(1, "T", equalizer.treble);
   }
 
+  update() {
+    add(ControllEvent());
+  }
+
+  @override
+  ControllBlocState get initialState => ControllBlocState(BlocUpdate("a"));
+
+  @override
+  Stream<ControllBlocState> mapEventToState(ControllEvent event) async* {
+    yield ControllBlocState(BlocUpdate("x"));
+  }
+
   void setContext(BuildContext context) {
     this.context = context;
   }
@@ -62,7 +77,6 @@ class ControlBloc extends BlocBase implements AudioCallback {
 
   @override
   void dispose() {
-    super.dispose();
     audioControl.dispose();
   }
 
@@ -75,15 +89,14 @@ class ControlBloc extends BlocBase implements AudioCallback {
     audioControl.setBass(value);
     equalizer.bass = value;
     equalizer.verify();
-    notifyListeners();
+    update();
   }
 
   void setTreble(double value) {
     audioControl.setTrebble(value);
-
     equalizer.treble = value;
     equalizer.verify();
-    notifyListeners();
+    update();
   }
 
   void onEqualizerChange(EqualizerState state, double value) {
@@ -101,29 +114,6 @@ class ControlBloc extends BlocBase implements AudioCallback {
     audioControl.setVolume(value);
   }
 
-  void increaseVolume(int value) {
-    equalizer.volume++;
-    equalizer.verify();
-    notifyListeners();
-  }
-
-  void decreaseVolume(int value) {
-    equalizer.volume--;
-    equalizer.verify();
-    notifyListeners();
-  }
-
-  setSongs(List<AudioModel> value) {
-    listAudioModelContent.clear();
-    listAudioModelContent.addAll(value);
-    notifyListeners();
-  }
-
-  addSong(AudioModel value) {
-    listAudioModelContent.add(value);
-    notifyListeners();
-  }
-
   getSongs() async {
     listAudioModel = await songProvider.getSongByBrideNative();
     listAudioModelContent.addAll(listAudioModel);
@@ -135,19 +125,11 @@ class ControlBloc extends BlocBase implements AudioCallback {
       totalTime += audioModel.duartion;
     }
     tapeBloc.setCurentTime(0, totalTime);
-    notifyListeners();
+
+    update();
   }
 
   getPreviousSong() {
-//    currentIndex--;
-//    if (currentIndex < 0) {
-//      currentIndex = 0;
-//    }
-//    if (listAudioModelContent != null && listAudioModelContent.length > 0) {
-//      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
-//    }
-//    notifyListeners();
-
     currentIndex--;
     if (currentIndex < 0) {
       currentIndex = listAudioModelContent.length - 1;
@@ -166,19 +148,11 @@ class ControlBloc extends BlocBase implements AudioCallback {
       tapeBloc.setCurentTime(currentTime, totalTime);
       tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
     }
-    notifyListeners();
+
+    update();
   }
 
   getNextSong() {
-//    currentIndex++;
-//    if (currentIndex > listAudioModelContent.length - 1) {
-//      currentIndex = listAudioModelContent.length - 1;
-//    }
-//    if (listAudioModelContent != null && listAudioModelContent.length > 0) {
-//      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
-//    }
-//    notifyListeners();
-
     currentIndex++;
     if (currentIndex >= listAudioModelContent.length) {
       currentIndex = 0;
@@ -194,7 +168,7 @@ class ControlBloc extends BlocBase implements AudioCallback {
       tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
     }
 
-    notifyListeners();
+    update();
   }
 
   longPress(ButtonState state, int duration) {
@@ -229,7 +203,7 @@ class ControlBloc extends BlocBase implements AudioCallback {
     } else {
       state.trigger();
     }
-    notifyListeners();
+    add(ControllEvent());
   }
 
   tapCancel(ButtonState state, bool isLongPress, int time) {
@@ -250,7 +224,8 @@ class ControlBloc extends BlocBase implements AudioCallback {
     } else {
       state.cancel();
     }
-    notifyListeners();
+
+    add(ControllEvent());
 
     if (state == rewind) {
       if (isLongPress) {
@@ -299,73 +274,74 @@ class ControlBloc extends BlocBase implements AudioCallback {
     Map result = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => MyMenuScreen(
+            builder: (context) => MenuScreen(
                   listAudioModel: listAudioModel,
                 )));
 
-//    if (result == null) {
-//      return;
-//    }
-//
-//    String type = result[MenuScreen.KEY_TYPE];
-//    int pos = result[MenuScreen.KEY_POS];
-//    String value = result[MenuScreen.KEY_VALUE];
-//    if (type.isNotEmpty && type == MenuScreen.DANH_SACH) {
-//      listAudioModelContent.clear();
-//      listAudioModelContent.addAll(listAudioModel);
-//      currentIndex = pos;
-//      totalTime = 0;
-//      currentTime = 0;
-//      for (int i = 0; i < listAudioModelContent.length; i++) {
-//        AudioModel audioModel = listAudioModelContent[i];
-//        totalTime += audioModel.duartion;
-//        if (i <= currentIndex) {
-//          currentTime += audioModel.duartion;
-//        }
-//      }
-//    } else if (type.isNotEmpty && type == MenuScreen.ARTIST) {
-//      listAudioModelContent.clear();
-//      currentIndex = 0;
-//      for (AudioModel audioModel in listAudioModel) {
-//        if (audioModel.artist == value) {
-//          listAudioModelContent.add(audioModel);
-//        }
-//      }
-//
-//      totalTime = 0;
-//      currentTime = 0;
-//      for (int i = 0; i < listAudioModelContent.length; i++) {
-//        AudioModel audioModel = listAudioModelContent[i];
-//        totalTime += audioModel.duartion;
-//      }
-//    } else if (type.isNotEmpty && type == MenuScreen.FOLDER) {
-//      listAudioModelContent.clear();
-//      currentIndex = 0;
-//      for (AudioModel audioModel in listAudioModel) {
-//        if (audioModel.folder == value) {
-//          listAudioModelContent.add(audioModel);
-//        }
-//      }
-//
-//      totalTime = 0;
-//      currentTime = 0;
-//      for (int i = 0; i < listAudioModelContent.length; i++) {
-//        AudioModel audioModel = listAudioModelContent[i];
-//        totalTime += audioModel.duartion;
-//      }
-//    }
-//    if (listAudioModelContent.length > currentIndex) {
-//      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
-//      tapeBloc.setCurentTime(currentTime, totalTime);
-//    }
+    if (result == null) {
+      return;
+    }
 
-    notifyListeners();
+    String type = result[MenuScreen.KEY_TYPE];
+    int pos = result[MenuScreen.KEY_POS];
+    String value = result[MenuScreen.KEY_VALUE];
+    if (type.isNotEmpty && type == MenuScreen.DANH_SACH) {
+      listAudioModelContent.clear();
+      listAudioModelContent.addAll(listAudioModel);
+      currentIndex = pos;
+      totalTime = 0;
+      currentTime = 0;
+      for (int i = 0; i < listAudioModelContent.length; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        totalTime += audioModel.duartion;
+        if (i <= currentIndex) {
+          currentTime += audioModel.duartion;
+        }
+      }
+    } else if (type.isNotEmpty && type == MenuScreen.ARTIST) {
+      listAudioModelContent.clear();
+      currentIndex = 0;
+      for (AudioModel audioModel in listAudioModel) {
+        if (audioModel.artist == value) {
+          listAudioModelContent.add(audioModel);
+        }
+      }
+
+      totalTime = 0;
+      currentTime = 0;
+      for (int i = 0; i < listAudioModelContent.length; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        totalTime += audioModel.duartion;
+      }
+    } else if (type.isNotEmpty && type == MenuScreen.FOLDER) {
+      listAudioModelContent.clear();
+      currentIndex = 0;
+      for (AudioModel audioModel in listAudioModel) {
+        if (audioModel.folder == value) {
+          listAudioModelContent.add(audioModel);
+        }
+      }
+
+      totalTime = 0;
+      currentTime = 0;
+      for (int i = 0; i < listAudioModelContent.length; i++) {
+        AudioModel audioModel = listAudioModelContent[i];
+        totalTime += audioModel.duartion;
+      }
+    }
+    if (listAudioModelContent.length > currentIndex) {
+      tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
+      tapeBloc.setCurentTime(currentTime, totalTime);
+    }
+
+    add(ControllEvent());
   }
 
   @override
   onDurationChange(int duration) {
+    print("onDurationChange value :  $duration");
+    print("onDurationChange currentTime :  $currentTime  total time : $totalTime");
     tapeBloc.setCurentTime(currentTime + duration, totalTime);
-    notifyListeners();
   }
 }
 

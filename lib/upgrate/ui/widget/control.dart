@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:bloc_pattern/bloc_pattern.dart';
+import 'package:cassettemusic/upgrate/control/ControllState.dart';
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
 import 'package:cassettemusic/upgrate/ui/widget/EqualizerControl.dart';
@@ -12,6 +12,7 @@ import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Control extends StatefulWidget {
   @override
@@ -37,7 +38,7 @@ class ControlState extends State<Control> {
   @override
   Widget build(BuildContext context) {
     appSummary = AppSummary(context);
-
+    ControlBloc bloc = BlocProvider.of<ControlBloc>(context);
     return Container(
       width: double.infinity,
       height: appSummary.screenHeight * Const.controlHeight,
@@ -48,8 +49,8 @@ class ControlState extends State<Control> {
           fit: BoxFit.contain,
         ),
       ),
-      child: Consumer<ControlBloc>(
-        builder: (context, bloc) {
+      child: BlocBuilder<ControlBloc, ControllBlocState>(
+        builder: (context, state) {
           return Row(
             children: <Widget>[
               Expanded(

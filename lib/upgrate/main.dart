@@ -1,9 +1,9 @@
-import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/ui/screen/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,10 +16,14 @@ class MyApp extends StatelessWidget {
     print("ZZZZZZZZZZZZZZZZZZZZZ BUILD");
     final tapeBloc = TapeBloc();
     final controlBloc = ControlBloc(tapeBloc);
-    return BlocProvider(
-      blocs: [
-        Bloc((i) => tapeBloc),
-        Bloc((i) => controlBloc),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<TapeBloc>(
+          create: (context) => tapeBloc,
+        ),
+        BlocProvider<ControlBloc>(
+          create: (context) => controlBloc,
+        )
       ],
       child: MaterialApp(
         title: 'Flutter Demo',

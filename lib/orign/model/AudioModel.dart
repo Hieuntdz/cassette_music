@@ -7,10 +7,16 @@ class AudioModel {
   String folder;
   int duartion;
 
-  AudioModel(this.path, this.name, this.album, this.artist, this.genre, this.folder, this.duartion);
+  AudioModel({this.path, this.name, this.album, this.artist, this.genre, this.folder, this.duartion});
 
   factory AudioModel.fromJson(dynamic json) {
-    return AudioModel(json['path'] as String, json['name'] as String, json['album'] as String, json['artist'] as String,
-        json['genre'] as String, json['folder'] as String, json['duartion'] as int);
+    return AudioModel(
+        path: json['path'] as String,
+        name: json['name'] as String,
+        album: json['album'] as String,
+        artist: json['artist'] as String,
+        genre: json['genre'] as String,
+        folder: json['folder'] as String,
+        duartion: json['duartion'] as int);
   }
 }
