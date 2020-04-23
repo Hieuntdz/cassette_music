@@ -11,13 +11,14 @@ import android.os.PersistableBundle
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
+import com.example.audioplayers.AudioplayersPlugin
 import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.embedding.engine.plugins.shim.ShimPluginRegistry
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.util.*
-
 
 class MainActivity : FlutterActivity() {
     val TAG = "MainActivity TAG";
@@ -33,6 +34,8 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        val shimPluginRegistry = ShimPluginRegistry(flutterEngine)
+        AudioplayersPlugin.registerWith(shimPluginRegistry.registrarFor("com.example.audioplayers.AudioplayersPlugin"))
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             audioListResult = result
             if (call.method == "getAudioList") {
@@ -80,7 +83,7 @@ class MainActivity : FlutterActivity() {
                     audioModel.name = name
                     audioModel.path = file.absolutePath
                     //                    Log.d("BBBBBBBBBBBBBBBBBBBBBB ", file.getName());
-                    var metaRetriver  = MediaMetadataRetriever()
+                    var metaRetriver = MediaMetadataRetriever()
                     metaRetriver?.setDataSource(file.path)
 
                     audioModel.album = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)

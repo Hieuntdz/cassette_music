@@ -40,6 +40,7 @@ class EqualizerControlSate extends State<EqualizerControl> {
           ),
           Flexible(
               child: Container(
+            margin: EdgeInsets.only(top: 3, bottom: 3),
             width: 200,
             padding: EdgeInsets.all(0),
             alignment: Alignment.topLeft,

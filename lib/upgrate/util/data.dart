@@ -16,12 +16,12 @@ class Const {
     max: 1.0,
   );
   static final SoundData bass = SoundData(
-    def: 750.0,
+    def: 500.0,
     min: 0.0,
     max: 1000.0,
   );
   static final SoundData treble = SoundData(
-    def: 750.0,
+    def: 500.0,
     min: 0.0,
     max: 1000.0,
   );

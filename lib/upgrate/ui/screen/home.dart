@@ -44,7 +44,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       body: Stack(
         children: <Widget>[
           Container(
-            color: Colors.black,
+            width: double.infinity,
+            height: double.infinity,
+            child: Image.asset(
+              "assets/images/upgrate/main_bg.png",
+              fit: BoxFit.fill,
+            ),
           ),
           Center(
             child: Tape(),

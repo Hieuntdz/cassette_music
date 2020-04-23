@@ -74,23 +74,29 @@ class ControlState extends State<Control> {
 
   Widget initEqualizer(ControlBloc bloc) {
     return Container(
-      margin: EdgeInsets.only(top: 3, left: 10),
+      margin: EdgeInsets.only(top: 5, bottom: 5, left: 5),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Flexible(
-            child: EqualizerControl(
-              equalizerState: bloc.trebbleControll,
-              thumb: equalizerThumb,
-              bloc: bloc,
+            child: Container(
+              color: Colors.grey,
+              child: EqualizerControl(
+                equalizerState: bloc.trebbleControll,
+                thumb: equalizerThumb,
+                bloc: bloc,
+              ),
             ),
           ),
           Flexible(
-            child: EqualizerControl(
-              equalizerState: bloc.bassControll,
-              thumb: equalizerThumb,
-              bloc: bloc,
+            child: Container(
+              color: Colors.greenAccent,
+              child: EqualizerControl(
+                equalizerState: bloc.bassControll,
+                thumb: equalizerThumb,
+                bloc: bloc,
+              ),
             ),
           ),
         ],

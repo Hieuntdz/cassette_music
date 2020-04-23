@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:cassettemusic/orign/audioplayer/uiid/uuid.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:uuid/uuid.dart';
 
 typedef StreamController CreateStreamController();
 typedef void TimeChangeHandler(Duration duration);
@@ -76,8 +76,7 @@ enum PlayerMode {
 
 /// Not implemented on macOS.
 void _backgroundCallbackDispatcher() {
-  const MethodChannel _channel =
-      MethodChannel('xyz.luan/audioplayers_callback');
+  const MethodChannel _channel = MethodChannel('xyz.luan/audioplayers_callback');
 
   // Setup Flutter state needed for MethodChannels.
   WidgetsFlutterBinding.ensureInitialized();
@@ -90,8 +89,7 @@ void _backgroundCallbackDispatcher() {
   // which we then pass to the provided callback.
   _channel.setMethodCallHandler((MethodCall call) async {
     Function _performCallbackLookup() {
-      final CallbackHandle handle = CallbackHandle.fromRawHandle(
-          call.arguments['updateHandleMonitorKey']);
+      final CallbackHandle handle = CallbackHandle.fromRawHandle(call.arguments['updateHandleMonitorKey']);
 
       // PluginUtilities.getCallbackFromHandle performs a lookup based on the
       // handle we retrieved earlier.
@@ -128,32 +126,25 @@ void _backgroundCallbackDispatcher() {
 /// It holds methods to play, loop, pause, stop, seek the audio, and some useful
 /// hooks for handlers and callbacks.
 class AudioPlayer {
-  static final MethodChannel _channel =
-      const MethodChannel('xyz.luan/audioplayers')
-        ..setMethodCallHandler(platformCallHandler);
+  static final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers')
+    ..setMethodCallHandler(platformCallHandler);
 
   static final _uuid = Uuid();
 
-  final StreamController<AudioPlayerState> _playerStateController =
-      StreamController<AudioPlayerState>.broadcast();
+  final StreamController<AudioPlayerState> _playerStateController = StreamController<AudioPlayerState>.broadcast();
 
   final StreamController<AudioPlayerState> _notificationPlayerStateController =
       StreamController<AudioPlayerState>.broadcast();
 
-  final StreamController<Duration> _positionController =
-      StreamController<Duration>.broadcast();
+  final StreamController<Duration> _positionController = StreamController<Duration>.broadcast();
 
-  final StreamController<Duration> _durationController =
-      StreamController<Duration>.broadcast();
+  final StreamController<Duration> _durationController = StreamController<Duration>.broadcast();
 
-  final StreamController<void> _completionController =
-      StreamController<void>.broadcast();
+  final StreamController<void> _completionController = StreamController<void>.broadcast();
 
-  final StreamController<bool> _seekCompleteController =
-      StreamController<bool>.broadcast();
+  final StreamController<bool> _seekCompleteController = StreamController<bool>.broadcast();
 
-  final StreamController<String> _errorController =
-      StreamController<String>.broadcast();
+  final StreamController<String> _errorController = StreamController<String>.broadcast();
 
   PlayingRouteState _playingRouteState = PlayingRouteState.SPEAKERS;
 
@@ -187,12 +178,10 @@ class AudioPlayer {
   }
 
   /// Stream of changes on player state.
-  Stream<AudioPlayerState> get onPlayerStateChanged =>
-      _playerStateController.stream;
+  Stream<AudioPlayerState> get onPlayerStateChanged => _playerStateController.stream;
 
   /// Stream of changes on player state coming from notification area in iOS.
-  Stream<AudioPlayerState> get onNotificationPlayerStateChanged =>
-      _notificationPlayerStateController.stream;
+  Stream<AudioPlayerState> get onNotificationPlayerStateChanged => _notificationPlayerStateController.stream;
 
   /// Stream of changes on audio position.
   ///
@@ -296,8 +285,7 @@ class AudioPlayer {
       // Start the headless audio service. The parameter here is a handle to
       // a callback managed by the Flutter engine, which allows for us to pass
       // references to our callbacks between isolates.
-      final CallbackHandle handle =
-          PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
+      final CallbackHandle handle = PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
       assert(handle != null, 'Unable to lookup callback.');
       _invokeMethod('startHeadlessService', {
         'handleKey': <dynamic>[handle.toRawHandle()]
@@ -315,9 +303,7 @@ class AudioPlayer {
       ..['playerId'] = playerId
       ..['mode'] = mode.toString();
 
-    return _channel
-        .invokeMethod(method, withPlayerId)
-        .then((result) => (result as int));
+    return _channel.invokeMethod(method, withPlayerId).then((result) => (result as int));
   }
 
   /// this should be called after initiating AudioPlayer only if you want to
@@ -329,8 +315,7 @@ class AudioPlayer {
     // Start the headless audio service. The parameter here is a handle to
     // a callback managed by the Flutter engine, which allows for us to pass
     // references to our callbacks between isolates.
-    final CallbackHandle handle =
-        PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
+    final CallbackHandle handle = PluginUtilities.getCallbackHandle(_backgroundCallbackDispatcher);
     assert(handle != null, 'Unable to lookup callback.');
     _invokeMethod('startHeadlessService', {
       'handleKey': <dynamic>[handle.toRawHandle()]
@@ -343,8 +328,7 @@ class AudioPlayer {
   ///
   /// `callback` is invoked on a background isolate and will not have direct
   /// access to the state held by the main isolate (or any other isolate).
-  Future<bool> monitorNotificationStateChanges(
-      void Function(AudioPlayerState value) callback) async {
+  Future<bool> monitorNotificationStateChanges(void Function(AudioPlayerState value) callback) async {
     if (callback == null) {
       throw ArgumentError.notNull('callback');
     }
@@ -464,6 +448,7 @@ class AudioPlayer {
   Future<int> setBass(double bass) {
     return _invokeMethod('setBass', {'bass': bass});
   }
+
   Future<int> setTreble(double treble) {
     return _invokeMethod('setTreble', {'treble': treble});
   }
@@ -519,11 +504,9 @@ class AudioPlayer {
   /// this method.
   ///
   /// respectSilence is not implemented on macOS.
-  Future<int> setUrl(String url,
-      {bool isLocal: false, bool respectSilence = false}) {
+  Future<int> setUrl(String url, {bool isLocal: false, bool respectSilence = false}) {
     isLocal = isLocalUrl(url);
-    return _invokeMethod('setUrl',
-        {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
+    return _invokeMethod('setUrl', {'url': url, 'isLocal': isLocal, 'respectSilence': respectSilence});
   }
 
   /// Get audio duration after setting url.
@@ -568,8 +551,7 @@ class AudioPlayer {
     switch (call.method) {
       case 'audio.onNotificationPlayerStateChanged':
         final bool isPlaying = value;
-        player.notificationState =
-            isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
+        player.notificationState = isPlaying ? AudioPlayerState.PLAYING : AudioPlayerState.PAUSED;
         break;
       case 'audio.onDuration':
         Duration newDuration = Duration(milliseconds: value);
@@ -618,16 +600,12 @@ class AudioPlayer {
   Future<void> dispose() async {
     List<Future> futures = [];
 
-    if (!_playerStateController.isClosed)
-      futures.add(_playerStateController.close());
-    if (!_notificationPlayerStateController.isClosed)
-      futures.add(_notificationPlayerStateController.close());
+    if (!_playerStateController.isClosed) futures.add(_playerStateController.close());
+    if (!_notificationPlayerStateController.isClosed) futures.add(_notificationPlayerStateController.close());
     if (!_positionController.isClosed) futures.add(_positionController.close());
     if (!_durationController.isClosed) futures.add(_durationController.close());
-    if (!_completionController.isClosed)
-      futures.add(_completionController.close());
-    if (!_seekCompleteController.isClosed)
-      futures.add(_seekCompleteController.close());
+    if (!_completionController.isClosed) futures.add(_completionController.close());
+    if (!_seekCompleteController.isClosed) futures.add(_seekCompleteController.close());
     if (!_errorController.isClosed) futures.add(_errorController.close());
 
     await Future.wait(futures);
@@ -635,12 +613,9 @@ class AudioPlayer {
 
   Future<int> earpieceOrSpeakersToggle() async {
     PlayingRouteState playingRoute =
-        _playingRouteState == PlayingRouteState.EARPIECE
-            ? PlayingRouteState.SPEAKERS
-            : PlayingRouteState.EARPIECE;
+        _playingRouteState == PlayingRouteState.EARPIECE ? PlayingRouteState.SPEAKERS : PlayingRouteState.EARPIECE;
 
-    final playingRouteName =
-        playingRoute == PlayingRouteState.EARPIECE ? 'earpiece' : 'speakers';
+    final playingRouteName = playingRoute == PlayingRouteState.EARPIECE ? 'earpiece' : 'speakers';
     final int result = await _invokeMethod(
       'earpieceOrSpeakersToggle',
       {'playingRoute': playingRouteName},
@@ -654,8 +629,6 @@ class AudioPlayer {
   }
 
   bool isLocalUrl(String url) {
-    return url.startsWith("/") ||
-        url.startsWith("file://") ||
-        url.substring(1).startsWith(':\\');
+    return url.startsWith("/") || url.startsWith("file://") || url.substring(1).startsWith(':\\');
   }
 }

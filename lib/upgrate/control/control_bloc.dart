@@ -254,7 +254,7 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
       if (state.isPressed) {
         audioControl.pause();
       } else if (audioControl.state == AudioState.pause) {
-        audioControl.resume();
+        audioControl.play(tapeBloc.audioModel.path);
       }
     } else if (state == stop) {
 //      audioControl.stop();
@@ -341,6 +341,14 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
     print("onDurationChange currentTime :  $currentTime  total time : $totalTime");
     tapeBloc.setCurentTime(currentTime + duration, totalTime);
   }
+
+  @override
+  onCompleteAudio() {
+    getNextSong();
+    if (tapeBloc.audioModel != null && audioControl.state == AudioState.play) {
+      audioControl.play(tapeBloc.audioModel.path);
+    }
+  }
 }
 
 class Equalizer {
@@ -425,6 +433,7 @@ enum AudioState { prepare, play, resume, pause, stop }
 
 class AudioCallback {
   onDurationChange(int percent) {}
+  onCompleteAudio() {}
 }
 
 class AudioControl {
@@ -455,7 +464,7 @@ class AudioControl {
 //    audioPlayer.setVolume(Const.volume.def);
 
     complete = audioPlayer.onPlayerCompletion.listen((event) {
-      print('AudioControl complete');
+      callback.onCompleteAudio();
     });
     error = audioPlayer.onPlayerError.listen((msg) {
       print('AudioControl error $msg');
@@ -529,7 +538,7 @@ class AudioControl {
   }
 
   void setTrebble(double trebble) {
-    audioPlayer.setBass(trebble / Const.treble.max);
+    audioPlayer.setTreble(trebble / Const.treble.max);
   }
 
   void setVolume(double volume) {
