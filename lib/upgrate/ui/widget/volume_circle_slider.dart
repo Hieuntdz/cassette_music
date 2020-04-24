@@ -8,11 +8,9 @@ import 'package:flutter/material.dart';
 final String TAG = "MyCircleSlider";
 
 class VolumeCircleSlider extends StatefulWidget {
-  ControlBloc bloc;
+  final ControlBloc bloc;
 
-  VolumeCircleSlider(ControlBloc controlBloc) {
-    this.bloc = controlBloc;
-  }
+  VolumeCircleSlider(this.bloc);
 
   @override
   State<StatefulWidget> createState() {
@@ -25,16 +23,13 @@ final double topCircle2 = 10;
 
 class VolumeCircleSliderState extends State<VolumeCircleSlider> {
   GlobalKey keyVolume = new GlobalKey();
-  final int MIN_VOLUME = 10;
-  final int MAX_VOLUME = 100;
-
   double dragX = 0; // gia tri cuoi cung khi keo nut tron phia X
   double dragY = 0; // gia tri cuoi cung khi keo nut tron phia Y
 
   double iconSize = 15;
   double sizeWidth = 0;
   double sizeHeight = 0;
-  double defalutTop = 20;
+  double defaultTop = 20;
   double defaultLeft = 0;
   double minPosLeft = 0;
   double maxPosLeft = 0;
@@ -66,17 +61,17 @@ class VolumeCircleSliderState extends State<VolumeCircleSlider> {
 
     defaultLeft = sizeWidth / 2 - iconSize / 2;
 
-    minPosLeft = sizeWidth / 2 - (sizeHeight - defalutTop);
-    maxPosLeft = sizeWidth / 2 + (sizeHeight - defalutTop);
-    minPosTop = defalutTop;
+    minPosLeft = sizeWidth / 2 - (sizeHeight - defaultTop);
+    maxPosLeft = sizeWidth / 2 + (sizeHeight - defaultTop);
+    minPosTop = defaultTop;
     maxPosTop = sizeHeight;
     icCircleBlueVisibly = true;
 
-    radius = sizeHeight - defalutTop - iconSize / 2;
+    radius = sizeHeight - defaultTop - iconSize / 2;
 
     setState(() {
       posLeft = sizeWidth / 2 - iconSize / 2;
-      posTop = defalutTop;
+      posTop = defaultTop;
       icCircleBlueVisibly = true;
     });
 //    });
@@ -106,7 +101,7 @@ class VolumeCircleSliderState extends State<VolumeCircleSlider> {
             child: Stack(
               children: <Widget>[
                 Container(
-                  margin: EdgeInsets.only(top: 8),
+                  margin: EdgeInsets.only(top: 5),
                   alignment: Alignment.center,
                   child: Image.asset(
                     "assets/images/bg_volume.png",
@@ -122,7 +117,7 @@ class VolumeCircleSliderState extends State<VolumeCircleSlider> {
                       dragY = 0;
                       setState(() {
                         posLeft = defaultLeft;
-                        posTop = defalutTop;
+                        posTop = defaultTop;
                       });
                       print("onHorizontalDragEnd");
                     },
@@ -176,12 +171,12 @@ class VolumeCircleSliderState extends State<VolumeCircleSlider> {
     if (dx < 0) {
       setState(() {
         posLeft = defaultLeft - offsetX;
-        posTop = defalutTop + offsetY;
+        posTop = defaultTop + offsetY;
       });
     } else {
       setState(() {
         posLeft = defaultLeft + offsetX;
-        posTop = defalutTop + offsetY;
+        posTop = defaultTop + offsetY;
       });
     }
   }

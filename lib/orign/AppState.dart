@@ -1,4 +1,0 @@
-enum AppState {
-  PAUSING,
-  PLAYING,
-}

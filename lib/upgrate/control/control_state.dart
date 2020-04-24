@@ -1,7 +1,7 @@
 import 'package:cassettemusic/upgrate/control/bloc_update.dart';
 
-class ControllBlocState {
+class ControlBlocState {
   BlocUpdate blocUpdate;
 
-  ControllBlocState(this.blocUpdate);
+  ControlBlocState(this.blocUpdate);
 }

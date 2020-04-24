@@ -17,6 +17,7 @@ class Tape extends StatefulWidget {
 class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
   AppSummary appSummary;
   AnimationController animationController;
+  ControlBloc controlBloc;
 
   @override
   void initState() {
@@ -25,7 +26,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: new Duration(seconds: 3),
     );
-    ControlBloc controlBloc = BlocProvider.of<ControlBloc>(context);
+    controlBloc = BlocProvider.of<ControlBloc>(context);
     controlBloc.setAnimationController(animationController);
   }
 
@@ -37,10 +38,11 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     appSummary = AppSummary(context);
-    final height = appSummary.screenHeight;
+    final height = appSummary.screenHeight - MediaQuery.of(context).padding.top;
     final width = height * Const.tapeRatio;
 
     return Container(
+      margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       width: width,
       height: height,
       child: Stack(
@@ -118,11 +120,11 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
                             child: VerticalLine("#E8D0A4", 1),
                           ),
                           SizedBox(
-                            height: 12,
+                            height: 6,
                           ),
                           initAnim(tapeBloc),
                           SizedBox(
-                            height: 12,
+                            height: 6,
                           ),
                           Expanded(
                             child: initTapeLabel(),
@@ -237,7 +239,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
                   padding: EdgeInsets.only(left: 5, right: 5),
                   width: (width - subPadding * 2) - ((height - subPadding) * 2),
                   height: height - subPadding,
-                  child: WidgetIce(bloc.curentTime, bloc.totalTime),
+                  child: WidgetIce(bloc.currentTime, bloc.totalTime),
                 ),
                 initWheel(height - subPadding),
               ],
@@ -286,6 +288,8 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
 
   Widget initTapeLabel() {
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       child: Image.asset(
         Images.tapeLabel2,
         fit: BoxFit.fill,

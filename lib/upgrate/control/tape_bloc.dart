@@ -6,13 +6,13 @@ import 'package:cassettemusic/upgrate/model/song.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TapeBloc extends Bloc<TapeEvent, TapeBlocState> {
-  double curentTime;
+  double currentTime;
   double totalTime;
   Song song;
   AudioModel audioModel;
 
   TapeBloc() {
-    curentTime = 0;
+    currentTime = 0;
     totalTime = 0;
   }
 
@@ -26,7 +26,7 @@ class TapeBloc extends Bloc<TapeEvent, TapeBlocState> {
   }
 
   void setCurentTime(double current, double total) {
-    curentTime = current;
+    currentTime = current;
     totalTime = total;
     add(TapeEvent());
   }

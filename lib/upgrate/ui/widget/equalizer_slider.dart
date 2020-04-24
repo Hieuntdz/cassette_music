@@ -8,21 +8,21 @@ import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class EqualizerControl extends StatefulWidget {
-  EqualizerState equalizerState;
-  ui.Image thumb;
-  ControlBloc bloc;
+class EqualizerSlider extends StatefulWidget {
+  final EqualizerState equalizerState;
+  final ui.Image thumb;
+  final ControlBloc bloc;
 
-  EqualizerControl({this.equalizerState, this.thumb, this.bloc});
+  EqualizerSlider({this.equalizerState, this.thumb, this.bloc});
 
   @override
   State<StatefulWidget> createState() {
-    return EqualizerControlSate();
+    return EqualizerSliderSate();
   }
 }
 
-class EqualizerControlSate extends State<EqualizerControl> {
-  EqualizerControlSate();
+class EqualizerSliderSate extends State<EqualizerSlider> {
+  EqualizerSliderSate();
 
   @override
   void initState() {

@@ -17,14 +17,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+  ControlBloc controlBloc;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ControlBloc controlBloc = BlocProvider.of<ControlBloc>(context);
+      controlBloc = BlocProvider.of<ControlBloc>(context);
       controlBloc.setContext(context);
       controlBloc.getSongs();
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -37,11 +44,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
-
     var appSummary = AppSummary(context);
 
     return Scaffold(
-      body: Stack(
+        body: Container(
+      child: Stack(
         children: <Widget>[
           Container(
             width: double.infinity,
@@ -68,12 +75,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           )
         ],
       ),
+    )
 //      floatingActionButton: FloatingActionButton(
 //        onPressed: () {
 //          ControlBloc controlBloc = BlocProvider.getBloc<ControlBloc>();
 //          controlBloc.getSongs();
 //        },
 //      ),
-    );
+        );
   }
 }

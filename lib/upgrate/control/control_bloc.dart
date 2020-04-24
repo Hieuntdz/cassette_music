@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:cassettemusic/orign/MenuScreen.dart';
 import 'package:cassettemusic/orign/audioplayer/audioplayers.dart';
 import 'package:cassettemusic/orign/model/AudioModel.dart';
-import 'package:cassettemusic/upgrate/control/ControllState.dart';
 import 'package:cassettemusic/upgrate/control/bloc_update.dart';
 import 'package:cassettemusic/upgrate/control/control_event.dart';
+import 'package:cassettemusic/upgrate/control/control_state.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/song.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
@@ -14,7 +14,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements AudioCallback {
+class ControlBloc extends Bloc<ControlEvent, ControlBlocState> implements AudioCallback {
   BuildContext context;
   TapeBloc tapeBloc;
   SongProvider songProvider;
@@ -56,15 +56,15 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
   }
 
   update() {
-    add(ControllEvent());
+    add(ControlEvent());
   }
 
   @override
-  ControllBlocState get initialState => ControllBlocState(BlocUpdate("a"));
+  ControlBlocState get initialState => ControlBlocState(BlocUpdate("a"));
 
   @override
-  Stream<ControllBlocState> mapEventToState(ControllEvent event) async* {
-    yield ControllBlocState(BlocUpdate("x"));
+  Stream<ControlBlocState> mapEventToState(ControlEvent event) async* {
+    yield ControlBlocState(BlocUpdate("x"));
   }
 
   void setContext(BuildContext context) {
@@ -204,7 +204,7 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
     } else {
       state.trigger();
     }
-    add(ControllEvent());
+    add(ControlEvent());
   }
 
   tapCancel(ButtonState state, bool isLongPress, int time) {
@@ -220,7 +220,7 @@ class ControlBloc extends Bloc<ControllEvent, ControllBlocState> implements Audi
       state.cancel();
     }
 
-    add(ControllEvent());
+    add(ControlEvent());
 
     if (state == rewind) {
       if (isLongPress) {

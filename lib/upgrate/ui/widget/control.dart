@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:cassettemusic/upgrate/control/ControllState.dart';
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
+import 'package:cassettemusic/upgrate/control/control_state.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
-import 'package:cassettemusic/upgrate/ui/widget/EqualizerControl.dart';
-import 'package:cassettemusic/upgrate/ui/widget/VolumeCircleSlider.dart';
 import 'package:cassettemusic/upgrate/ui/widget/button.dart';
+import 'package:cassettemusic/upgrate/ui/widget/equalizer_slider.dart';
+import 'package:cassettemusic/upgrate/ui/widget/volume_circle_slider.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -44,12 +44,9 @@ class ControlState extends State<Control> {
       height: appSummary.screenHeight * Const.controlHeight,
       decoration: new BoxDecoration(
         image: new DecorationImage(
-          image: new AssetImage(Images.controlBackground),
-          repeat: ImageRepeat.repeatX,
-          fit: BoxFit.contain,
-        ),
+            image: new AssetImage(Images.controlBackground), fit: BoxFit.contain, repeat: ImageRepeat.repeatX),
       ),
-      child: BlocBuilder<ControlBloc, ControllBlocState>(
+      child: BlocBuilder<ControlBloc, ControlBlocState>(
         builder: (context, state) {
           return Row(
             children: <Widget>[
@@ -81,8 +78,7 @@ class ControlState extends State<Control> {
         children: <Widget>[
           Flexible(
             child: Container(
-              color: Colors.grey,
-              child: EqualizerControl(
+              child: EqualizerSlider(
                 equalizerState: bloc.trebbleControll,
                 thumb: equalizerThumb,
                 bloc: bloc,
@@ -91,8 +87,7 @@ class ControlState extends State<Control> {
           ),
           Flexible(
             child: Container(
-              color: Colors.greenAccent,
-              child: EqualizerControl(
+              child: EqualizerSlider(
                 equalizerState: bloc.bassControll,
                 thumb: equalizerThumb,
                 bloc: bloc,
@@ -107,14 +102,13 @@ class ControlState extends State<Control> {
   Widget initButtons(ControlBloc bloc) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
+        image: new DecorationImage(image: new AssetImage(Images.button_background), fit: BoxFit.fill),
       ),
       height: double.infinity,
       padding: EdgeInsets.all(4),
       margin: EdgeInsets.only(
-        top: 6,
-        bottom: 4,
+        top: 10,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

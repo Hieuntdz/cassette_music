@@ -13,8 +13,9 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    print("ZZZZZZZZZZZZZZZZZZZZZ BUILD");
+    // ignore: close_sinks
     final tapeBloc = TapeBloc();
+    // ignore: close_sinks
     final controlBloc = ControlBloc(tapeBloc);
     return MultiBlocProvider(
       providers: [

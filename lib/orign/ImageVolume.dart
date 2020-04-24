@@ -16,7 +16,7 @@ class ImageVolumeState extends State<ImageVolume> {
     return Container(
       alignment: Alignment.center,
       child: Image.asset(
-        "assets/images/ic_bg_circle_volume.png",
+        "assets/images/bg_volume.png",
       ),
     );
   }
