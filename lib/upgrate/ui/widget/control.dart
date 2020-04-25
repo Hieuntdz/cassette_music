@@ -103,7 +103,7 @@ class ControlState extends State<Control> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
-        image: new DecorationImage(image: new AssetImage(Images.button_background), fit: BoxFit.fill),
+        image: new DecorationImage(image: new AssetImage(Images.buttonBackground), fit: BoxFit.fill),
       ),
       height: double.infinity,
       padding: EdgeInsets.all(4),
@@ -155,7 +155,7 @@ class ControlState extends State<Control> {
   }
 
   Future<void> loadEqualizerThumb() async {
-    final ByteData data = await rootBundle.load('assets/images/ic_thumb.png');
+    final ByteData data = await rootBundle.load(Images.equalizerThumb);
     equalizerThumb = await loadImage(new Uint8List.view(data.buffer));
   }
 

@@ -6,8 +6,8 @@ class Const {
   static final tapeContentWithTapeRatio = 0.65;
   static final tapeContentLabelRatio = 60 / 720;
   static final tapeAnimRatio = 194 / 720;
-  static final tapeAnimOwerRatio = 194 / 657;
-  static final bgMoRatio = 130 / 720;
+  static final tapeAnimOwnerRatio = 194 / 657;
+  static final bgMoRatio = 150 / 720;
 
   static final controlHeight = 0.17;
   static final SoundData volume = SoundData(
@@ -59,7 +59,8 @@ class Images {
   static final controlBackground = '$root/control_background.png';
   static final controlButton = '$root/control_button.png';
   static final controlButtonPressed = '$root/control_button_pressed.png';
-  static final button_background = '$root/button_background.png';
+  static final buttonBackground = '$root/button_background.png';
+  static final equalizerThumb = '$root/ic_thumb.png';
   static final ButtonData play = ButtonData(
     icon: '$root/ic_play_black.png',
     iconPressed: '$root/ic_play_blue.png',

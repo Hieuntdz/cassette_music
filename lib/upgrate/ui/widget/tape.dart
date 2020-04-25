@@ -104,7 +104,8 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
                           initSongName(tapeBloc),
                           Container(
                             padding: EdgeInsets.only(
-                              left: 4,
+                              left: 10,
+                              right: 10,
                               top: 4,
                               bottom: 4,
                             ),
@@ -113,7 +114,8 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
                           initSongDes(tapeBloc),
                           Container(
                             padding: EdgeInsets.only(
-                              left: 4,
+                              left: 10,
+                              right: 10,
                               top: 2,
                               bottom: 4,
                             ),
@@ -149,6 +151,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
         Container(
+          margin: EdgeInsets.only(left: 10),
           width: size,
           height: size,
           child: Image.asset(
@@ -158,7 +161,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
         ),
         Expanded(
           child: Container(
-            margin: EdgeInsets.only(left: 10, right: 5),
+            margin: EdgeInsets.only(left: 10, right: 10),
             child: Text(
               name,
               maxLines: 1,
@@ -179,6 +182,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
     String des =
         (bloc.audioModel != null && bloc.audioModel.folder.length > 0) ? bloc.audioModel.folder : Const.songDesLabel;
     return Container(
+      margin: EdgeInsets.only(right: 10),
       alignment: Alignment.centerRight,
       child: Text(
         des,
@@ -194,7 +198,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
 
   Widget initAnim(TapeBloc bloc) {
     final height = appSummary.screenHeight * Const.tapeAnimRatio;
-    final width = height / Const.tapeAnimOwerRatio;
+    final width = height / Const.tapeAnimOwnerRatio;
     final padding = 4.0;
     final subPadding = 12.0;
     return Container(
@@ -287,13 +291,14 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
   }
 
   Widget initTapeLabel() {
+    double height = appSummary.screenHeight * 70 / 720;
     return Container(
-      width: double.infinity,
-      height: double.infinity,
-      child: Image.asset(
-        Images.tapeLabel2,
-        fit: BoxFit.fill,
-      ),
-    );
+        color: Colors.red,
+        width: double.infinity,
+        height: 20,
+        child: Image.asset(
+          Images.tapeLabel2,
+          fit: BoxFit.fill,
+        ));
   }
 }
