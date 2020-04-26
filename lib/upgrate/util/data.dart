@@ -8,6 +8,8 @@ class Const {
   static final tapeAnimRatio = 194 / 720;
   static final tapeAnimOwnerRatio = 194 / 657;
   static final bgMoRatio = 150 / 720;
+  static final equalizerThumbRatio = 49 / 720;
+  static final equalizerOwnerThumbRatio = 63 / 49;
 
   static final controlHeight = 0.17;
   static final SoundData volume = SoundData(
@@ -61,6 +63,7 @@ class Images {
   static final controlButtonPressed = '$root/control_button_pressed.png';
   static final buttonBackground = '$root/button_background.png';
   static final equalizerThumb = '$root/ic_thumb.png';
+  static final equalizerTrack = '$root/equalizer_track.png';
   static final ButtonData play = ButtonData(
     icon: '$root/ic_play_black.png',
     iconPressed: '$root/ic_play_blue.png',

@@ -224,14 +224,6 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
               fit: BoxFit.fill,
             ),
           ),
-//          Container(
-//            width: double.infinity,
-//            height: double.infinity,
-//            padding: EdgeInsets.all(padding),
-//            child: CustomPaint(
-//              painter: ReelPainter(padding, padding),
-//            ),
-//          ),
           Container(
             width: double.infinity,
             height: double.infinity,
@@ -291,11 +283,8 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
   }
 
   Widget initTapeLabel() {
-    double height = appSummary.screenHeight * 70 / 720;
     return Container(
-        color: Colors.red,
         width: double.infinity,
-        height: 20,
         child: Image.asset(
           Images.tapeLabel2,
           fit: BoxFit.fill,

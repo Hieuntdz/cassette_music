@@ -76,20 +76,24 @@ class ControlState extends State<Control> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Flexible(
+          Expanded(
+            flex: 1,
             child: Container(
+              width: double.infinity,
+              height: double.infinity,
               child: EqualizerSlider(
                 equalizerState: bloc.trebbleControll,
-                thumb: equalizerThumb,
                 bloc: bloc,
               ),
             ),
           ),
-          Flexible(
+          Expanded(
+            flex: 1,
             child: Container(
+              width: double.infinity,
+              height: double.infinity,
               child: EqualizerSlider(
                 equalizerState: bloc.bassControll,
-                thumb: equalizerThumb,
                 bloc: bloc,
               ),
             ),

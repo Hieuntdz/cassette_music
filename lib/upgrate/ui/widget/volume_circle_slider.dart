@@ -166,8 +166,8 @@ class VolumeCircleSliderState extends State<VolumeCircleSlider> {
       offsetX = radius;
     }
 
-    double anpha = asin(offsetX / radius);
-    double offsetY = radius - cos(anpha) * radius;
+    double alpha = asin(offsetX / radius);
+    double offsetY = radius - cos(alpha) * radius;
     if (dx < 0) {
       setState(() {
         posLeft = defaultLeft - offsetX;
