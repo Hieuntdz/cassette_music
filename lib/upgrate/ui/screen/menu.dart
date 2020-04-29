@@ -1,7 +1,7 @@
 //import 'package:bloc_pattern/bloc_pattern.dart';
-//import 'package:cassettemusic/orign/BreakLine.dart';
-//import 'package:cassettemusic/orign/Constant.dart';
-//import 'package:cassettemusic/orign/HexColor.dart';
+//import 'package:cassettemusic/orign/break_line.dart';
+//import 'package:cassettemusic/orign/constant.dart';
+//import 'package:cassettemusic/orign/hex_color.dart';
 //import 'package:cassettemusic/orign/model/AudioModel.dart';
 //import 'package:cassettemusic/upgrate/control/menu_bloc.dart';
 //import 'package:flutter/cupertino.dart';

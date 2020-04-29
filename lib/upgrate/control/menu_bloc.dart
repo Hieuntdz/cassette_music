@@ -1,7 +1,7 @@
 //import 'dart:ui';
 //
 //import 'package:bloc_pattern/bloc_pattern.dart';
-//import 'package:cassettemusic/orign/HexColor.dart';
+//import 'package:cassettemusic/orign/hex_color.dart';
 //import 'package:cassettemusic/orign/model/AudioModel.dart';
 //import 'package:cassettemusic/upgrate/ui/screen/menu.dart';
 //import 'package:flutter/material.dart';

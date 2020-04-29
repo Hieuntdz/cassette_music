@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:cassettemusic/orign/MenuScreen.dart';
 import 'package:cassettemusic/orign/audioplayer/audioplayers.dart';
+import 'package:cassettemusic/orign/menu_screen.dart';
 import 'package:cassettemusic/orign/model/AudioModel.dart';
 import 'package:cassettemusic/upgrate/control/bloc_update.dart';
 import 'package:cassettemusic/upgrate/control/control_event.dart';
@@ -253,7 +253,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlBlocState> implements AudioC
     } else if (state == pause) {
       if (state.isPressed) {
         audioControl.pause();
-      } else if (audioControl.state == AudioState.pause) {
+      } else if (audioControl.state == AudioState.pause && play.isPressed) {
         audioControl.play(tapeBloc.audioModel.path);
       }
     } else if (state == stop) {

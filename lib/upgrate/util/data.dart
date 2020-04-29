@@ -64,6 +64,7 @@ class Images {
   static final buttonBackground = '$root/button_background.png';
   static final equalizerThumb = '$root/ic_thumb.png';
   static final equalizerTrack = '$root/equalizer_track.png';
+  static final bgVolume = '$root/bg_volume.png';
   static final ButtonData play = ButtonData(
     icon: '$root/ic_play_black.png',
     iconPressed: '$root/ic_play_blue.png',

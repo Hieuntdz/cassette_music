@@ -1,7 +1,3 @@
-import 'dart:async';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
-
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
 import 'package:cassettemusic/upgrate/control/control_state.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
@@ -11,7 +7,6 @@ import 'package:cassettemusic/upgrate/ui/widget/volume_circle_slider.dart';
 import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Control extends StatefulWidget {
@@ -21,13 +16,10 @@ class Control extends StatefulWidget {
 
 class ControlState extends State<Control> {
   AppSummary appSummary;
-  ui.Image equalizerThumb;
 
   @override
   void initState() {
     super.initState();
-
-    loadEqualizerThumb();
   }
 
   @override
@@ -156,18 +148,5 @@ class ControlState extends State<Control> {
     return Container(
       child: VolumeCircleSlider(bloc),
     );
-  }
-
-  Future<void> loadEqualizerThumb() async {
-    final ByteData data = await rootBundle.load(Images.equalizerThumb);
-    equalizerThumb = await loadImage(new Uint8List.view(data.buffer));
-  }
-
-  Future<ui.Image> loadImage(List<int> img) async {
-    final Completer<ui.Image> completer = new Completer();
-    ui.decodeImageFromList(img, (ui.Image img) {
-      return completer.complete(img);
-    });
-    return completer.future;
   }
 }

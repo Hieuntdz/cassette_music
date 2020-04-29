@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'HexColor.dart';
+import 'hex_color.dart';
 
 String TAG = "WidgetIce";
 

@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
-import 'HexColor.dart';
+import 'hex_color.dart';
 
 class BreakLine extends StatelessWidget {
-  String color;
-  double weight;
+  final String color;
+  final double weight;
 
   BreakLine(this.color, this.weight);
 

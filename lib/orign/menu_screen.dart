@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'BreakLine.dart';
-import 'Constant.dart';
-import 'HexColor.dart';
+import 'break_line.dart';
+import 'constant.dart';
+import 'hex_color.dart';
 import 'model/AudioModel.dart';
 
 class MenuScreen extends StatelessWidget {

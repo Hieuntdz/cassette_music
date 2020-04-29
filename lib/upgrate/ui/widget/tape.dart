@@ -1,4 +1,4 @@
-import 'package:cassettemusic/orign/WidgetIce.dart';
+import 'package:cassettemusic/orign/widget_ice.dart';
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
 import 'package:cassettemusic/upgrate/control/tabe_bloc_state.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
@@ -129,6 +129,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
                             height: 6,
                           ),
                           Expanded(
+                            flex: 1,
                             child: initTapeLabel(),
                           )
                         ],
@@ -265,7 +266,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
               animation: animationController,
               builder: (BuildContext context, Widget _widget) {
                 return Transform.rotate(
-                  angle: animationController.value * 6.3,
+                  angle: -animationController.value * 6.3,
                   child: _widget,
                 );
               },
@@ -284,10 +285,20 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
 
   Widget initTapeLabel() {
     return Container(
-        width: double.infinity,
-        child: Image.asset(
-          Images.tapeLabel2,
-          fit: BoxFit.fill,
-        ));
+      width: double.infinity,
+      child: Align(
+        alignment: Alignment.center,
+        child: SizedBox(
+          width: double.infinity,
+          child: AspectRatio(
+            aspectRatio: 846 / 70,
+            child: Image.asset(
+              Images.tapeLabel2,
+              fit: BoxFit.fill,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

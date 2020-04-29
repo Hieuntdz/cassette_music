@@ -1,7 +1,8 @@
 import 'dart:math';
 
-import 'package:cassettemusic/orign/HexColor.dart';
+import 'package:cassettemusic/orign/hex_color.dart';
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
+import 'package:cassettemusic/upgrate/util/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -86,78 +87,78 @@ class VolumeCircleSliderState extends State<VolumeCircleSlider> {
 //      WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
 //    }
 
-    return OrientationBuilder(builder: (context, orientation) {
-      print(TAG + " build $orientation");
-      if (orientation == Orientation.landscape && mOrientation == Orientation.portrait) {
-        mOrientation = orientation;
-        WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
-      }
-      return Container(
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        print(TAG + " build $orientation");
+        if (orientation == Orientation.landscape && mOrientation == Orientation.portrait) {
+          mOrientation = orientation;
+          WidgetsBinding.instance.addPostFrameCallback((_) => getVolumeSizes());
+        }
+        return Container(
           key: keyVolume,
           width: double.infinity,
           height: double.infinity,
-          child: new CustomPaint(
-            painter: MyCustomPainter(),
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.only(top: 5),
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    "assets/images/bg_volume.png",
-                    fit: BoxFit.fill,
-                  ),
+          child: Stack(
+            children: <Widget>[
+              Container(
+                margin: EdgeInsets.only(top: 5, left: 5),
+                alignment: Alignment.center,
+                child: Image.asset(
+                  Images.bgVolume,
+                  fit: BoxFit.fill,
                 ),
-                Positioned(
-                  left: posLeft,
-                  top: posTop,
-                  child: GestureDetector(
-                    onHorizontalDragEnd: (DragEndDetails d) {
-                      dragX = 0;
-                      dragY = 0;
-                      setState(() {
-                        posLeft = defaultLeft;
-                        posTop = defaultTop;
-                      });
-                      print("onHorizontalDragEnd");
-                    },
-                    onHorizontalDragDown: (DragDownDetails d) {
-                      print("onHorizontalDragDown");
-                    },
-                    onHorizontalDragCancel: () {
-                      print("onHorizontalDragCancel");
-                    },
-                    onHorizontalDragUpdate: (DragUpdateDetails d) {
-                      print("onHorizontalDragUpdate");
-                      dragX = dragX + d.delta.dx;
-                      dragY = dragY + d.delta.dy;
-                      double progress = ((dragX + radius) / (2 * radius));
-                      widget.bloc.setVolume(progress);
-                      handleDragVolume(dragX, dragY);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(2),
-                      width: iconSize + 5,
-                      height: iconSize + 5,
-                      child: Visibility(
-                        visible: icCircleBlueVisibly,
-                        child: Image.asset("assets/images/ic_circle_blue.png"),
-                      ),
+              ),
+              Positioned(
+                left: posLeft,
+                top: posTop,
+                child: GestureDetector(
+                  onHorizontalDragEnd: (DragEndDetails d) {
+                    dragX = 0;
+                    dragY = 0;
+                    setState(() {
+                      posLeft = defaultLeft;
+                      posTop = defaultTop;
+                    });
+                    print("onHorizontalDragEnd");
+                  },
+                  onHorizontalDragDown: (DragDownDetails d) {
+                    print("onHorizontalDragDown");
+                  },
+                  onHorizontalDragCancel: () {
+                    print("onHorizontalDragCancel");
+                  },
+                  onHorizontalDragUpdate: (DragUpdateDetails d) {
+                    print("onHorizontalDragUpdate");
+                    dragX = dragX + d.delta.dx;
+                    dragY = dragY + d.delta.dy;
+                    double progress = ((dragX + radius) / (2 * radius));
+                    widget.bloc.setVolume(progress);
+                    handleDragVolume(dragX, dragY);
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    width: iconSize + 5,
+                    height: iconSize + 5,
+                    child: Visibility(
+                      visible: icCircleBlueVisibly,
+                      child: Image.asset("assets/images/ic_circle_blue.png"),
                     ),
                   ),
                 ),
-                Container(
-                  margin: EdgeInsets.only(bottom: 2),
-                  alignment: Alignment.bottomCenter,
-                  child: Text(
-                    "Volume",
-                    style: TextStyle(color: HexColor("#7C7C7C")),
-                  ),
+              ),
+              Container(
+                margin: EdgeInsets.only(bottom: 2),
+                alignment: Alignment.bottomCenter,
+                child: Text(
+                  "Volume",
+                  style: TextStyle(color: HexColor("#7C7C7C")),
                 ),
-              ],
-            ),
-          ));
-    });
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void handleDragVolume(double dx, double dy) {
@@ -179,43 +180,5 @@ class VolumeCircleSliderState extends State<VolumeCircleSlider> {
         posTop = defaultTop + offsetY;
       });
     }
-  }
-}
-
-class MyCustomPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    Offset center = new Offset(size.width / 2, size.height / 2);
-    double radius = min(size.width / 2, size.height / 2);
-    Paint paint1 = new Paint()
-      ..color = HexColor("#202020")
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 1;
-
-    Paint paint2 = new Paint()
-      ..color = HexColor("#313131")
-      ..style = PaintingStyle.fill;
-
-    double arcAngle = 2 * pi * (50 / 100);
-
-//    canvas.drawArc(
-//        new Rect.fromCircle(center: new Offset(size.width / 2, size.height), radius: size.height - topCircle1),
-//        -pi,
-//        arcAngle,
-//        false,
-//        paint1);
-//
-//    canvas.drawArc(
-//        new Rect.fromCircle(center: new Offset(size.width / 2, size.height), radius: size.height - topCircle2),
-//        -pi,
-//        arcAngle,
-//        false,
-//        paint2);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
   }
 }

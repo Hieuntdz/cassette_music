@@ -1,4 +1,4 @@
-import 'package:cassettemusic/orign/HexColor.dart';
+import 'package:cassettemusic/orign/hex_color.dart';
 import 'package:flutter/cupertino.dart';
 
 class VerticalLine extends StatelessWidget {
