@@ -3,7 +3,7 @@ class Const {
 
   static final tapeRatio = 1120 / 708;
   static final tapeContentRatio = 900 / 485;
-  static final tapeContentWithTapeRatio = 0.65;
+  static final tapeContentWithTapeRatio = 478 / 720;
   static final tapeContentLabelRatio = 60 / 720;
   static final tapeAnimRatio = 194 / 720;
   static final tapeAnimOwnerRatio = 194 / 657;

@@ -122,7 +122,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
                             child: VerticalLine("#E8D0A4", 1),
                           ),
                           SizedBox(
-                            height: 6,
+                            height: 10,
                           ),
                           initAnim(tapeBloc),
                           SizedBox(
@@ -255,13 +255,17 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
       padding: EdgeInsets.all(0),
       child: Stack(
         children: <Widget>[
-          Image.asset(
-            Images.tapeReelBorder,
-            fit: BoxFit.fill,
-            width: size,
-            height: size,
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            child: Image.asset(
+              Images.tapeReelBorder,
+              fit: BoxFit.fill,
+            ),
           ),
-          Center(
+          Container(
+            width: double.infinity,
+            height: double.infinity,
             child: AnimatedBuilder(
               animation: animationController,
               builder: (BuildContext context, Widget _widget) {
@@ -272,9 +276,6 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
               },
               child: Image.asset(
                 Images.tapeReel,
-                fit: BoxFit.fill,
-                width: size - padding,
-                height: size - padding,
               ),
             ),
           ),
@@ -287,7 +288,7 @@ class TapeState extends State<Tape> with SingleTickerProviderStateMixin {
     return Container(
       width: double.infinity,
       child: Align(
-        alignment: Alignment.center,
+        alignment: Alignment.bottomCenter,
         child: SizedBox(
           width: double.infinity,
           child: AspectRatio(

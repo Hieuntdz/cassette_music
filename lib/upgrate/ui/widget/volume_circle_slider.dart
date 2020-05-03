@@ -147,7 +147,7 @@ class VolumeCircleSliderState extends State<VolumeCircleSlider> {
                 ),
               ),
               Container(
-                margin: EdgeInsets.only(bottom: 2),
+                margin: EdgeInsets.only(bottom: 2, left: 5),
                 alignment: Alignment.bottomCenter,
                 child: Text(
                   "Volume",
