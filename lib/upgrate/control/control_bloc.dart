@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:cassettemusic/orign/audioplayer/audioplayers.dart';
 import 'package:cassettemusic/orign/menu_screen.dart';
@@ -115,7 +116,11 @@ class ControlBloc extends Bloc<ControlEvent, ControlBlocState> implements AudioC
   }
 
   getSongs() async {
-    listAudioModel = await songProvider.getSongByBrideNative();
+    if (Platform.isAndroid) {
+      listAudioModel = await songProvider.getSongByBrideNative();
+    } else if (Platform.isIOS) {
+      listAudioModel = await songProvider.getSong();
+    }
     listAudioModelContent.addAll(listAudioModel);
     currentIndex = 0;
     if (listAudioModelContent != null && listAudioModelContent.length > 0) {
@@ -433,6 +438,7 @@ enum AudioState { prepare, play, resume, pause, stop }
 
 class AudioCallback {
   onDurationChange(int percent) {}
+
   onCompleteAudio() {}
 }
 

@@ -12,9 +12,9 @@ import 'package:permission_handler/permission_handler.dart';
 class SongProvider {
   static const platform = const MethodChannel('CHANNEL_GET_AUDIO_LIST');
 
-  Future<List<Song>> getSong() async {
+  Future<List<AudioModel>> getSong() async {
     final data = await getSongByFlutter();
-    List<Song> songs = new List();
+    List<AudioModel> songs = new List();
     if (data != null) {
       for (int i = 0; i < data.length; i++) {
         print(data[i]);
@@ -25,11 +25,11 @@ class SongProvider {
           if (strings != null && strings.length > 0) {
             location = strings[strings.length - 1];
           }
-          songs.add(Song(
+          songs.add(AudioModel(
             name: path.basename(item.path),
-            location: location,
+            folder: location,
             path: item.path,
-            author: '',
+            artist: '',
           ));
         }
       }
