@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:cassettemusic/orign/audioplayer/uiid/uuid.dart';
+import 'package:cassettemusic/bridge/audioplayer/uiid/uuid.dart';
+import 'package:cassettemusic/upgrate/util/const.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -126,7 +127,7 @@ void _backgroundCallbackDispatcher() {
 /// It holds methods to play, loop, pause, stop, seek the audio, and some useful
 /// hooks for handlers and callbacks.
 class AudioPlayer {
-  static final MethodChannel _channel = const MethodChannel('xyz.luan/audioplayers')
+  static final MethodChannel _channel = MethodChannel(BridgeNative.audioChanel)
     ..setMethodCallHandler(platformCallHandler);
 
   static final _uuid = Uuid();

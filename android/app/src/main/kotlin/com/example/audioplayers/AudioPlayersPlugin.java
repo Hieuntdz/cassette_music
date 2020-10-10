@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -15,12 +14,12 @@ import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 
-public class AudioplayersPlugin implements MethodCallHandler {
+public class AudioPlayersPlugin implements MethodCallHandler {
 
-    private static final Logger LOGGER = Logger.getLogger(AudioplayersPlugin.class.getCanonicalName());
+    public static final String CHANEL_NAME = "AudioPlayersPlugin";
 
+    private static final Logger LOGGER = Logger.getLogger(AudioPlayersPlugin.class.getCanonicalName());
     private final MethodChannel channel;
     private final Map<String, Player> mediaPlayers = new HashMap<>();
     private final Handler handler = new Handler();
@@ -28,12 +27,12 @@ public class AudioplayersPlugin implements MethodCallHandler {
     private final Context context;
     private boolean seekFinish;
 
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "xyz.luan/audioplayers");
-        channel.setMethodCallHandler(new AudioplayersPlugin(channel, registrar.activeContext()));
+    public static void registerWith(BinaryMessenger messenger, Context context) {
+        final MethodChannel channel = new MethodChannel(messenger, CHANEL_NAME);
+        new AudioPlayersPlugin(channel, context);
     }
 
-    private AudioplayersPlugin(final MethodChannel channel, Context context) {
+    private AudioPlayersPlugin(final MethodChannel channel, Context context) {
         this.channel = channel;
         this.channel.setMethodCallHandler(this);
         this.context = context;
@@ -198,12 +197,12 @@ public class AudioplayersPlugin implements MethodCallHandler {
         private final WeakReference<Map<String, Player>> mediaPlayers;
         private final WeakReference<MethodChannel> channel;
         private final WeakReference<Handler> handler;
-        private final WeakReference<AudioplayersPlugin> audioplayersPlugin;
+        private final WeakReference<AudioPlayersPlugin> audioplayersPlugin;
 
         private UpdateCallback(final Map<String, Player> mediaPlayers,
                                final MethodChannel channel,
                                final Handler handler,
-                               final AudioplayersPlugin audioplayersPlugin) {
+                               final AudioPlayersPlugin audioplayersPlugin) {
             this.mediaPlayers = new WeakReference<>(mediaPlayers);
             this.channel = new WeakReference<>(channel);
             this.handler = new WeakReference<>(handler);
@@ -215,7 +214,7 @@ public class AudioplayersPlugin implements MethodCallHandler {
             final Map<String, Player> mediaPlayers = this.mediaPlayers.get();
             final MethodChannel channel = this.channel.get();
             final Handler handler = this.handler.get();
-            final AudioplayersPlugin audioplayersPlugin = this.audioplayersPlugin.get();
+            final AudioPlayersPlugin audioplayersPlugin = this.audioplayersPlugin.get();
 
             if (mediaPlayers == null || channel == null || handler == null || audioplayersPlugin == null) {
                 if (audioplayersPlugin != null) {

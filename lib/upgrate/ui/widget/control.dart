@@ -4,7 +4,7 @@ import 'package:cassettemusic/upgrate/model/app.dart';
 import 'package:cassettemusic/upgrate/ui/widget/button.dart';
 import 'package:cassettemusic/upgrate/ui/widget/equalizer_slider.dart';
 import 'package:cassettemusic/upgrate/ui/widget/volume_circle_slider.dart';
-import 'package:cassettemusic/upgrate/util/data.dart';
+import 'package:cassettemusic/upgrate/util/const.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

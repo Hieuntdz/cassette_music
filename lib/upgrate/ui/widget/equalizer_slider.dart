@@ -2,7 +2,7 @@ import 'package:cassettemusic/orign/constant.dart';
 import 'package:cassettemusic/orign/hex_color.dart';
 import 'package:cassettemusic/upgrate/control/control_bloc.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
-import 'package:cassettemusic/upgrate/util/data.dart';
+import 'package:cassettemusic/upgrate/util/const.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

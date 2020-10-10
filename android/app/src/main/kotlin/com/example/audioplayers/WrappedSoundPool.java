@@ -60,7 +60,7 @@ public class WrappedSoundPool extends Player {
     private static Map<String, List<WrappedSoundPool>> urlToPlayers = Collections.synchronizedMap(new HashMap<String, List<WrappedSoundPool>>());
 
 
-    private final AudioplayersPlugin ref;
+    private final AudioPlayersPlugin ref;
 
     private final String playerId;
 
@@ -84,7 +84,7 @@ public class WrappedSoundPool extends Player {
 
     private String playingRoute = "speakers";
 
-    WrappedSoundPool(AudioplayersPlugin ref, String playerId) {
+    WrappedSoundPool(AudioPlayersPlugin ref, String playerId) {
         this.ref = ref;
         this.playerId = playerId;
     }

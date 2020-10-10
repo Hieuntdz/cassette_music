@@ -11,7 +11,8 @@ import android.os.PersistableBundle
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
-import com.example.audioplayers.AudioplayersPlugin
+import com.example.audioplayers.AudioPlayersPlugin
+import com.example.notification.MediaNotificationPlugin
 import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -34,8 +35,8 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        val shimPluginRegistry = ShimPluginRegistry(flutterEngine)
-        AudioplayersPlugin.registerWith(shimPluginRegistry.registrarFor("com.example.audioplayers.AudioplayersPlugin"))
+        AudioPlayersPlugin.registerWith(flutterEngine.dartExecutor.binaryMessenger,this)
+        MediaNotificationPlugin.registerWith(flutterEngine.dartExecutor.binaryMessenger,this)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             audioListResult = result
             if (call.method == "getAudioList") {
@@ -83,8 +84,8 @@ class MainActivity : FlutterActivity() {
                     audioModel.name = name
                     audioModel.path = file.absolutePath
                     //                    Log.d("BBBBBBBBBBBBBBBBBBBBBB ", file.getName());
-                    var metaRetriver = MediaMetadataRetriever()
-                    metaRetriver?.setDataSource(file.path)
+                    val metaRetriver = MediaMetadataRetriever()
+                    metaRetriver.setDataSource(file.path)
 
                     audioModel.album = metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
                             ?: ""
@@ -97,8 +98,6 @@ class MainActivity : FlutterActivity() {
                     val millSecond = durationStr.toInt()
                     audioModel.duartion = millSecond;
 
-                    Log.d("BBBBBBBBBBBBBBBBBBBBBB", "Artist : " + audioModel.artist)
-                    Log.d("BBBBBBBBBBBBBBBBBBBBBB", "album : " + audioModel.album)
                     fileAudioList.add(audioModel)
                 }
             }

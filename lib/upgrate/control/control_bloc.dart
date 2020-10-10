@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
-import 'package:cassettemusic/orign/audioplayer/audioplayers.dart';
+import 'package:cassettemusic/bridge/audioplayer/audioplayers.dart';
+import 'package:cassettemusic/bridge/notification/notifi_manager.dart';
 import 'package:cassettemusic/orign/menu_screen.dart';
 import 'package:cassettemusic/orign/model/AudioModel.dart';
 import 'package:cassettemusic/upgrate/control/bloc_update.dart';
@@ -9,7 +10,7 @@ import 'package:cassettemusic/upgrate/control/control_event.dart';
 import 'package:cassettemusic/upgrate/control/control_state.dart';
 import 'package:cassettemusic/upgrate/control/tape_bloc.dart';
 import 'package:cassettemusic/upgrate/model/song.dart';
-import 'package:cassettemusic/upgrate/util/data.dart';
+import 'package:cassettemusic/upgrate/util/const.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,8 @@ class ControlBloc extends Bloc<ControlEvent, ControlBlocState> implements AudioC
 
   double totalTime = 0; // tong time list nhac
   double currentTime = 0; // time hien tai da play dc
+
+  NotificationManager notificationManager;
 
   ControlBloc(TapeBloc tapeBloc) {
     this.tapeBloc = tapeBloc;
@@ -54,6 +57,8 @@ class ControlBloc extends Bloc<ControlEvent, ControlBlocState> implements AudioC
 
     bassControll = EqualizerState(0, "B", equalizer.bass);
     trebbleControll = EqualizerState(1, "T", equalizer.treble);
+
+    notificationManager = new NotificationManager();
   }
 
   update() {
@@ -125,6 +130,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlBlocState> implements AudioC
     currentIndex = 0;
     if (listAudioModelContent != null && listAudioModelContent.length > 0) {
       tapeBloc.setAudioModel(listAudioModelContent[currentIndex]);
+      showNotification();
     }
     for (AudioModel audioModel in listAudioModelContent) {
       totalTime += audioModel.duartion;
@@ -132,6 +138,19 @@ class ControlBloc extends Bloc<ControlEvent, ControlBlocState> implements AudioC
     tapeBloc.setCurentTime(0, totalTime);
 
     update();
+  }
+
+  void showNotification() {
+    if (listAudioModelContent == null || listAudioModelContent.length <= currentIndex) {
+      return;
+    }
+    AudioModel audioModel = listAudioModelContent[currentIndex];
+    bool isPlay = false;
+    if (play.isPressed) {
+      isPlay = true;
+    }
+    print("showNotification");
+    notificationManager.show(audioModel.name, audioModel.artist, isPlay);
   }
 
   getPreviousSong() {
@@ -213,6 +232,12 @@ class ControlBloc extends Bloc<ControlEvent, ControlBlocState> implements AudioC
   }
 
   tapCancel(ButtonState state, bool isLongPress, int time) {
+    if (state == stop || state == pause) {
+      notificationManager.pause();
+    } else if (state == play) {
+      notificationManager.play();
+    }
+
     if (state == stop) {
       // Trường hợp ấn stop
       rewind.nonPress();
@@ -271,6 +296,7 @@ class ControlBloc extends Bloc<ControlEvent, ControlBlocState> implements AudioC
   }
 
   Future navigateToMenuScreen(context) async {
+    print("navigateToMenuScreen");
     Map result = await Navigator.push(
         context,
         MaterialPageRoute(

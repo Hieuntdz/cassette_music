@@ -111,3 +111,23 @@ class SoundData {
     this.max,
   });
 }
+
+class BridgeNative {
+  static String audioChanel = "AudioPlayersPlugin";
+  static String notificationChanel = "MediaNotificationPlugin";
+  static NotificationMethod notificationMethod = new NotificationMethod();
+  static NotificationParams notificationParams = new NotificationParams();
+}
+
+class NotificationMethod {
+  String methodShow = "show";
+  String methodPlay = "play";
+  String methodPause = "pause";
+  String methodUpdateTitle = "update_title";
+}
+
+class NotificationParams {
+  String paramTitle = "title";
+  String paramAuthor = "author";
+  String paramIsPlay = "is_play";
+}

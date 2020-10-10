@@ -2,7 +2,7 @@ import 'package:cassettemusic/upgrate/control/control_bloc.dart';
 import 'package:cassettemusic/upgrate/model/app.dart';
 import 'package:cassettemusic/upgrate/ui/widget/control.dart';
 import 'package:cassettemusic/upgrate/ui/widget/tape.dart';
-import 'package:cassettemusic/upgrate/util/data.dart';
+import 'package:cassettemusic/upgrate/util/const.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,7 +45,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       statusBarColor: Colors.transparent,
     ));
     var appSummary = AppSummary(context);
-
     return Scaffold(
         body: Container(
       child: Stack(
